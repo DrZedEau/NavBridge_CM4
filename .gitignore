@@ -1,0 +1,13 @@
+# Firmware build output
+firmware/**/build/
+
+# KiCad temporary files (if the project is unzipped here)
+*.lck
+*-backups/
+fp-info-cache
+_autosave-*
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store
