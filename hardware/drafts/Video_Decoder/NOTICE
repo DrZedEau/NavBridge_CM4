@@ -1,0 +1,14 @@
+This folder contains material derived from antmicro/cvbs-mipi-bridge
+https://github.com/antmicro/cvbs-mipi-bridge
+Copyright (c) 2022-2025 Antmicro
+Licensed under the Apache License, Version 2.0 (libs/NavBridge_Video.pretty/LICENSE-Apache-2.0).
+
+Files taken from it:
+  libs/NavBridge_Video.pretty/LFCSP-32-1EP-5x5mm.kicad_mod
+  libs/NavBridge_Video.pretty/SLP1006P2T.kicad_mod
+Modification: the 3D model path of each footprint now points to a KiCad
+stock model instead of the original project's model folder.
+
+The circuit on Video_Decoder.kicad_sch (input network, supply filtering,
+crystal network and power-down/reset sequencing) follows the same design.
+The ADV7282-M symbol pin numbers and names match the Antmicro symbol.

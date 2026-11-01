@@ -30,6 +30,14 @@ The project was made with **KiCad 10**. Unzip the archive and open `NavBridge_CM
 
 The archive also contains sheet files that are not used by the root schematic (`Buck_Converter_5V`, `GNSS`, `IBUS`, `PCIe`).
 
+## Drafts
+
+Sheets that are not in the board yet:
+
+| Folder | Content |
+|---|---|
+| [`drafts/Video_Decoder/`](drafts/Video_Decoder/) | ADV7282-M composite video decoder, analog reversing camera to the CM's CAM1 port over MIPI CSI-2 |
+
 ## License
 
 CERN-OHL-S-2.0, see [LICENSE](../LICENSE).
