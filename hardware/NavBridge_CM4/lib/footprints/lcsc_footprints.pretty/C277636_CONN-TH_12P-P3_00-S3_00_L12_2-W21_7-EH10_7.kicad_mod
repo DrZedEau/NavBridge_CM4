@@ -507,7 +507,7 @@
 		(uuid "5834c0df-7411-4f8e-9400-3b8b3f7e509c")
 	)
 	(embedded_fonts no)
-	(model "${KIPRJMOD}/libs/lcsc/3dmodels/C277636.wrl"
+	(model "${KIPRJMOD}/lib/3dmodels/C277636.wrl"
 		(offset
 			(xyz 0 0 0)
 		)

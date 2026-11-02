@@ -34,7 +34,7 @@
 	(fp_line (start -2.70 -1.25) (end 2.70 -1.25) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 2.70 -1.25) (end 2.70 1.25) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 2.70 1.25) (end -2.70 1.25) (layer F.CrtYd) (width 0.05))
-	(model "${KIPRJMOD}/libs/lcsc/3dmodels/C3312309.wrl"
+	(model "${KIPRJMOD}/lib/3dmodels/C3312309.wrl"
 		(offset (xyz 0.000 0.000 0.000))
 		(scale (xyz 1 1 1))
 		(rotate (xyz 0 0 0))

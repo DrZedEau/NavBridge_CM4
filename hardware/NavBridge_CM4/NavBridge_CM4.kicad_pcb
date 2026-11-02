@@ -5725,7 +5725,7 @@
 			(uuid "c159f8e4-cbae-46d3-a204-350a02e8017c")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C3312309.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C3312309.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -7336,7 +7336,7 @@
 			(uuid "a5d3226a-4d51-46ff-82d4-e4a355afa7d0")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C58940.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C58940.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -10226,7 +10226,7 @@
 			(uuid "50383730-f078-4a64-83c9-3b30ad387886")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C5225740.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C5225740.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -11044,7 +11044,7 @@
 			(uuid "8d6fa6c7-62da-4d59-9e78-bed5138a1f34")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C24593.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C24593.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -11472,7 +11472,7 @@
 			(uuid "f3e1cf35-6921-4df7-b6d6-fe61d9a2305d")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C189893.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C189893.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -12080,7 +12080,7 @@
 			(uuid "51d945ca-17c9-4e58-bb6b-f2fb8b5b4ac9")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C2848334.step"
+		(model "${KIPRJMOD}/lib/3dmodels/C2848334.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -13968,7 +13968,7 @@
 			(uuid "dc96ad9f-5225-4615-a548-c765f7b286a2")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C108518.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C108518.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -19347,7 +19347,7 @@
 			(uuid "2512293a-b3c7-462b-b88f-956dce92c34d")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C597931.step"
+		(model "${KIPRJMOD}/lib/3dmodels/C597931.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -20325,7 +20325,7 @@
 			(uuid "261953d5-52c0-4e96-8205-f5f497ae41ed")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C3235557.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C3235557.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -20704,7 +20704,7 @@
 			(uuid "30e118e0-4dae-4bd7-b1b0-2d082c215b7f")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C2673443.step"
+		(model "${KIPRJMOD}/lib/3dmodels/C2673443.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -21371,7 +21371,7 @@
 			(uuid "53f7d7a1-710d-4960-80ec-a5a7c0cd4759")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C33770534.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C33770534.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -21951,7 +21951,7 @@
 			(uuid "d5d16d59-19e6-43cc-b190-538b87d5c192")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C277636.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C277636.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -24245,7 +24245,7 @@
 			(uuid "ae1946e2-f1e3-4724-bdf4-5eff3de80ce0")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C485817.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C485817.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -25996,7 +25996,7 @@
 			(uuid "fd1e911e-b702-4182-907e-814aba0029b1")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C161690.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C161690.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -26293,7 +26293,7 @@
 			(uuid "f4c21174-d911-42ac-8949-38a6a0153b06")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C514175.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C514175.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -30329,7 +30329,7 @@
 			(uuid "fe0bce69-79f3-489f-9527-d9bc2ad260bf")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C2977809.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C2977809.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -30753,7 +30753,7 @@
 			(uuid "0b1f13cf-e20a-42b3-9993-0194c84061ed")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C22399676.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C22399676.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -31744,7 +31744,7 @@
 			(uuid "f50724cf-b6f0-4cb1-9551-39ade23aa705")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/library/JLCPCB_Data_Converters.3dshapes/LQFP-48_L7.0-W7.0-H1.4-LS9.0-P0.50.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/LQFP-48_L7.0-W7.0-H1.4-LS9.0-P0.50.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -34808,7 +34808,7 @@
 			(uuid "707d5d99-10f7-425c-bce4-b6d65dc2543c")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C2977809.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C2977809.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -36575,7 +36575,7 @@
 			(uuid "39666ac9-b8e2-406d-8553-82d511617335")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C24593.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C24593.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -38091,7 +38091,7 @@
 			(uuid "84a5ccf6-50e0-4c1f-8eba-47a76c4f1f89")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C128396.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C128396.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -38918,7 +38918,7 @@
 			(uuid "20530d90-d0b0-48ae-a7c7-e42ae0bc6a3a")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C428492.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C428492.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -42729,7 +42729,7 @@
 			(uuid "7841f099-d3a5-461a-b895-c7f054b37689")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C475497.wrl"
+		(model "${KIPRJMOD}/lib/3dmodels/C475497.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -51724,7 +51724,7 @@
 			(uuid "26ed0aef-90f9-4528-889a-82cc22c520ae")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/lcsc/3dmodels/C597931.step"
+		(model "${KIPRJMOD}/lib/3dmodels/C597931.step"
 			(offset
 				(xyz 0 0 0)
 			)

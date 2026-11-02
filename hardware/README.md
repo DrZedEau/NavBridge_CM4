@@ -6,10 +6,16 @@ KiCad project for the NavBridge CM4 board. It was made with **KiCad 10**: open [
 |---|---|
 | `NavBridge_CM4/*.kicad_sch` | Schematic: root sheet and 8 sub-sheets |
 | `NavBridge_CM4/NavBridge_CM4.kicad_pcb` | PCB layout |
-| `NavBridge_CM4/library/`, `NavBridge_CM4/libs/lcsc/` | Project symbol, footprint and 3D model libraries (only the parts used on the board) |
+| `NavBridge_CM4/lib/symbols/` | Project symbol libraries |
+| `NavBridge_CM4/lib/footprints/` | Project footprint libraries |
+| `NavBridge_CM4/lib/3dmodels/` | 3D models for the project footprints |
 | `NavBridge_CM4/fabrication-toolkit-options.json` | Settings for the JLCPCB Fabrication Toolkit plugin |
 
+The project libraries only hold the parts used on the board. Standard parts come from KiCad's own libraries.
+
 The CM4 / CM5 connector symbols (CN1, CN2) come from the `PCM_JLCPCB_Connectors` library, which is installed through KiCad's Plugin and Content Manager. The schematic carries its own copy of these symbols, so the project opens without it.
+
+When you import new parts with the LCSC or JLCPCB import plugins, point their output to `lib/`, or move the new files there and update `sym-lib-table` / `fp-lib-table`. Otherwise they create their own `libs/` or `library/` folder again.
 
 ## Revisions and fabrication files
 

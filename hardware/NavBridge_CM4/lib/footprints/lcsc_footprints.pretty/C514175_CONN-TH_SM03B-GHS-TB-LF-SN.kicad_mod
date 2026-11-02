@@ -245,7 +245,7 @@
 		(uuid "349d69d0-4968-462a-acce-e3e67abb59b0")
 	)
 	(embedded_fonts no)
-	(model "${KIPRJMOD}/libs/lcsc/3dmodels/C514175.wrl"
+	(model "${KIPRJMOD}/lib/3dmodels/C514175.wrl"
 		(offset
 			(xyz 0 0 0)
 		)
