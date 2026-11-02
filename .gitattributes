@@ -1,0 +1,20 @@
+# Store text files with LF line endings; Git for Windows checks them out with CRLF.
+* text=auto
+
+# KiCad design files are text: keep them diffable.
+*.kicad_pro  text
+*.kicad_sch  text
+*.kicad_pcb  text
+*.kicad_sym  text
+*.kicad_mod  text
+*-lib-table  text
+
+# 3D models are text but large and not worth diffing.
+*.step -diff
+*.stp  -diff
+*.wrl  -diff
+
+*.png binary
+*.jpg binary
+*.pdf binary
+*.stl binary

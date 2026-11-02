@@ -1,12 +1,19 @@
 # Hardware
 
-KiCad project for the NavBridge CM4 board.
+KiCad project for the NavBridge CM4 board. It was made with **KiCad 10**: open [`NavBridge_CM4/NavBridge_CM4.kicad_pro`](NavBridge_CM4/).
 
-| File | Content |
+| Path | Content |
 |---|---|
-| `NavBridge_CM4_0.1.zip` | Revision 0.1: schematics, PCB layout, project-local symbol, footprint and 3D model libraries |
+| `NavBridge_CM4/*.kicad_sch` | Schematic: root sheet and 8 sub-sheets |
+| `NavBridge_CM4/NavBridge_CM4.kicad_pcb` | PCB layout |
+| `NavBridge_CM4/library/`, `NavBridge_CM4/libs/lcsc/` | Project symbol, footprint and 3D model libraries (only the parts used on the board) |
+| `NavBridge_CM4/fabrication-toolkit-options.json` | Settings for the JLCPCB Fabrication Toolkit plugin |
 
-The project was made with **KiCad 10**. Unzip the archive and open `NavBridge_CM4.kicad_pro`.
+The CM4 / CM5 connector symbols (CN1, CN2) come from the `PCM_JLCPCB_Connectors` library, which is installed through KiCad's Plugin and Content Manager. The schematic carries its own copy of these symbols, so the project opens without it.
+
+## Revisions and fabrication files
+
+Each board revision is a git tag (`v0.1`, ...). Gerbers, drill files, BOM, CPL, the schematic PDF and the STEP model for a revision are attached to the matching [GitHub release](https://github.com/DrZedEau/NavBridge_CM4/releases). The `production/` folder that the fabrication plugin writes is not tracked.
 
 ## Board
 
@@ -27,16 +34,6 @@ The project was made with **KiCad 10**. Unzip the archive and open `NavBridge_CM
 | M.2 | Two M.2 Key E slots, AP63203 3.3 V buck, auxiliary 5 V connector |
 | SD_Card | microSD slot and its power switch |
 | MFi | Apple MFi authentication coprocessor |
-
-The archive also contains sheet files that are not used by the root schematic (`Buck_Converter_5V`, `GNSS`, `IBUS`, `PCIe`).
-
-## Drafts
-
-Sheets that are not in the board yet:
-
-| Folder | Content |
-|---|---|
-| [`drafts/Video_Decoder/`](drafts/Video_Decoder/) | ADV7282-M composite video decoder, analog reversing camera to the CM's CAM1 port over MIPI CSI-2 |
 
 ## License
 

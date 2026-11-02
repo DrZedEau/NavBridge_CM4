@@ -1,11 +1,16 @@
 # Firmware build output
 firmware/**/build/
 
-# KiCad temporary files (if the project is unzipped here)
+# KiCad temporary and per-user files
 *.lck
 *-backups/
 fp-info-cache
 _autosave-*
+.history/
+*.kicad_prl
+
+# Fabrication outputs (attached to GitHub releases instead)
+production/
 
 # OS files
 Thumbs.db

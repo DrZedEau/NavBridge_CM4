@@ -9,7 +9,7 @@ Its primary purpose is to provide modern features such as Android Auto and Apple
 This revision is designed for the **Raspberry Pi CM4** and should also work with the **CM5**, which uses the same connectors (see [Using a CM5](#using-a-cm5)).
 
 <p align="center">
-  <img src="images/PCB/navbridge_cm4_pcb_3d.png" width="800">
+  <img src="docs/images/navbridge_cm4_pcb_3d.png" width="800">
 </p>
 
 ---
@@ -69,7 +69,7 @@ The hardware is designed to run [NavBridge App](https://github.com/DrZedEau/NavB
 ## Board Overview
 
 <p align="center">
-  <img src="images/PCB/navbridge_cm4_pcb_top.png" width="600">
+  <img src="docs/images/navbridge_cm4_pcb_top.png" width="600">
 </p>
 
 ### Connectors
@@ -176,14 +176,15 @@ The CM5 uses the same connectors as the CM4 and keeps the CM4 pinout for the int
 ## Repository Structure
 
 ```text
-hardware/      KiCad project (zipped)
+hardware/      KiCad project (schematic, PCB, project libraries)
 firmware/      STM32C071 MCU firmware
-scripts/       Raspberry Pi setup script
-3D/            STL files for printed parts (case and connector)
-images/        Pictures and renders
+software/      Raspberry Pi setup script
+mechanical/    Printed parts (case and connector)
+docs/images/   Pictures and renders
+LICENSES/      Licence texts other than the main LICENSE
 ```
 
-The KiCad project in [hardware/](hardware/) was made with KiCad 10 and includes its symbol, footprint and 3D model libraries.
+The KiCad project in [hardware/](hardware/) was made with KiCad 10 and includes its symbol, footprint and 3D model libraries. Fabrication files (Gerbers, BOM, CPL, schematic PDF) for each board revision are attached to the [releases](https://github.com/DrZedEau/NavBridge_CM4/releases).
 
 ---
 
@@ -219,13 +220,13 @@ Bug reports, hardware improvements, firmware enhancements, and documentation upd
 
 Copyright 2026 DrZedEau
 
-The hardware design — the KiCad project in `hardware/`, the 3D printed parts in `3D/` and the images in `images/` — is licensed under the **CERN Open Hardware Licence Version 2 – Strongly Reciprocal** (CERN-OHL-S-2.0), see [LICENSE](LICENSE). You may redistribute and modify it and make products from it under the terms of that licence. It is distributed without any express or implied warranty, including of merchantability, satisfactory quality and fitness for a particular purpose.
+The hardware design — the KiCad project in `hardware/`, the printed parts in `mechanical/` and the images in `docs/images/` — is licensed under the **CERN Open Hardware Licence Version 2 – Strongly Reciprocal** (CERN-OHL-S-2.0), see [LICENSE](LICENSE). You may redistribute and modify it and make products from it under the terms of that licence. It is distributed without any express or implied warranty, including of merchantability, satisfactory quality and fitness for a particular purpose.
 
 Source location: https://github.com/DrZedEau/NavBridge_CM4
 
 As required by section 4 of the CERN-OHL-S, products made from this design must, where practicable, keep this source location visible.
 
-The firmware in `firmware/` and the Raspberry Pi setup script in `scripts/` are licensed under the **GNU General Public License v2.0** (GPL-2.0), see [firmware/LICENSE](firmware/LICENSE) and [scripts/LICENSE](scripts/LICENSE). Third-party files keep their own licences.
+The firmware in `firmware/` and the Raspberry Pi setup script in `software/` are licensed under the **GNU General Public License v2.0** (GPL-2.0), see [LICENSES/GPL-2.0-only.txt](LICENSES/GPL-2.0-only.txt). Third-party files keep their own licences.
 
 ---
 

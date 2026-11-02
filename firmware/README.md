@@ -45,4 +45,4 @@ The board has no SWD connector (PA13 / SWDIO is not connected), so the MCU is fl
 
 ## License
 
-GPL-2.0, see [LICENSE](LICENSE). The CSYNC generator is a port of [mbt28/pico-csync-generator](https://github.com/mbt28/pico-csync-generator), which is also GPL-2.0. Third-party files, such as ST's CMSIS headers, keep their own licences.
+GPL-2.0, see [LICENSES/GPL-2.0-only.txt](../LICENSES/GPL-2.0-only.txt). The CSYNC generator is a port of [mbt28/pico-csync-generator](https://github.com/mbt28/pico-csync-generator), which is also GPL-2.0. Third-party files, such as ST's CMSIS headers, keep their own licences.
