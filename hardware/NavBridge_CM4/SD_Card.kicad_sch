@@ -1,0 +1,32 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "cf6d9156-42f7-489e-b0a7-bd7e22c2cd80")
+	(paper "A4")
+	(lib_symbols)
+	(text "REMOVED FOR NOW"
+		(exclude_from_sim no)
+		(at 145.034 97.536 0)
+		(effects
+			(font
+				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
+			)
+		)
+		(uuid "b8c1a6f4-5c0f-4a76-8daf-cf4cba7cc9bc")
+	)
+	(text ""
+		(exclude_from_sim no)
+		(at 484.378 -82.55 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+				(bold yes)
+			)
+		)
+		(uuid "d64fe9e6-f26f-45ad-8495-b58c5cf265e4")
+	)
+)

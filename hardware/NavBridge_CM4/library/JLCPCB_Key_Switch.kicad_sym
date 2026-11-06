@@ -1,0 +1,123 @@
+(kicad_symbol_lib
+  (version 20211014)
+  (generator https://github.com/uPesy/easyeda2kicad.py)
+    (symbol "CAS-120TB1"
+    (in_bom yes)
+    (on_board yes)
+    (property
+      "Reference"
+      "SW"
+      
+      (at 0 12.70 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Value"
+      "CAS-120TB1"
+      
+      (at 0 -15.24 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Footprint"
+      "JLCPCB_Key_Switch:SW-SMD_3P-L5.4-W2.5-P3.50-LS4.2"
+      
+      (at 0 -17.78 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "LCSC Part"
+      "C2921537"
+      
+      (at 0 -20.32 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (symbol "CAS-120TB1_0_1"
+      (rectangle
+        (start -7.62 2.54)
+        (end 7.62 -5.08)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (circle
+        (center 0.00 -1.02)
+        (radius 0.51)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle
+        (center -2.54 -2.54)
+        (radius 0.51)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (circle
+        (center 2.54 -2.54)
+        (radius 0.51)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 2.03 -2.29) (xy 0.51 -1.27)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0.00 -0.51) (xy 0.00 2.54)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 3.05 -2.79) (xy 5.08 -4.32) (xy 5.08 -5.08) (xy 5.08 -5.08)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -3.05 -2.79) (xy -5.08 -4.32) (xy -5.08 -5.08) (xy -5.08 -5.08)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (pin unspecified line
+        (at -5.08 -10.16 90)
+        (length 5.08)
+        (name "1" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 0.00 7.62 270)
+        (length 5.08)
+        (name "2" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 5.08 -10.16 90)
+        (length 5.08)
+        (name "3" (effects (font (size 1.27 1.27))))
+        (number "3" (effects (font (size 1.27 1.27))))
+      )
+    )
+    (property "Manufacturer" "Nidec" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Description" "Brick nogging 100mA SPDT 50V White" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Mounting Style" "Brick nogging" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Operating Temperature" "-40℃~+85℃" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Actuator Color" "White" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Current Rating (DC)" "100mA" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Switch Width" "3.9mm" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Pin Style" "Gull Wing" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Actuator Style" "Embedded" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Circuit" "SPDT" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Switch Height" "2.5mm" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Voltage Rating (DC)" "50V" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Mechanical Life" "-" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Switch Length" "5.4mm" (effects (font (size 1.27 1.27)) (hide yes)))
+  )
+
+)
