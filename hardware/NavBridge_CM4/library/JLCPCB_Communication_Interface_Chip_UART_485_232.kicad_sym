@@ -1,0 +1,381 @@
+(kicad_symbol_lib
+  (version 20211014)
+  (generator https://github.com/uPesy/easyeda2kicad.py)
+    (symbol "TS5V330CDR"
+    (in_bom yes)
+    (on_board yes)
+    (property
+      "Reference"
+      "U"
+      
+      (at 0 13.97 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Value"
+      "TS5V330CDR"
+      
+      (at 0 -13.97 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Footprint"
+      "JLCPCB_Communication_Interface_Chip_UART_485_232:SOIC-16_L9.9-W3.9-P1.27-LS6.0-BL"
+      
+      (at 0 -16.51 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "LCSC Part"
+      "C2652482"
+      
+      (at 0 -19.05 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (symbol "TS5V330CDR_0_1"
+      (rectangle
+        (start -6.35 11.43)
+        (end 6.35 -11.43)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (circle
+        (center -5.08 10.16)
+        (radius 0.38)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (pin unspecified line
+        (at -8.89 8.89 0)
+        (length 2.54)
+        (name "IN" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -8.89 6.35 0)
+        (length 2.54)
+        (name "S1A" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -8.89 3.81 0)
+        (length 2.54)
+        (name "S2A" (effects (font (size 1.27 1.27))))
+        (number "3" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -8.89 1.27 0)
+        (length 2.54)
+        (name "DA" (effects (font (size 1.27 1.27))))
+        (number "4" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -8.89 -1.27 0)
+        (length 2.54)
+        (name "S1B" (effects (font (size 1.27 1.27))))
+        (number "5" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -8.89 -3.81 0)
+        (length 2.54)
+        (name "S2B" (effects (font (size 1.27 1.27))))
+        (number "6" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -8.89 -6.35 0)
+        (length 2.54)
+        (name "DB" (effects (font (size 1.27 1.27))))
+        (number "7" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -8.89 -8.89 0)
+        (length 2.54)
+        (name "GND" (effects (font (size 1.27 1.27))))
+        (number "8" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 8.89 -8.89 180)
+        (length 2.54)
+        (name "DC" (effects (font (size 1.27 1.27))))
+        (number "9" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 8.89 -6.35 180)
+        (length 2.54)
+        (name "S2C" (effects (font (size 1.27 1.27))))
+        (number "10" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 8.89 -3.81 180)
+        (length 2.54)
+        (name "S1C" (effects (font (size 1.27 1.27))))
+        (number "11" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 8.89 -1.27 180)
+        (length 2.54)
+        (name "DD" (effects (font (size 1.27 1.27))))
+        (number "12" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 8.89 1.27 180)
+        (length 2.54)
+        (name "S2D" (effects (font (size 1.27 1.27))))
+        (number "13" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 8.89 3.81 180)
+        (length 2.54)
+        (name "S1D" (effects (font (size 1.27 1.27))))
+        (number "14" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 8.89 6.35 180)
+        (length 2.54)
+        (name "~{EN}" (effects (font (size 1.27 1.27))))
+        (number "15" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 8.89 8.89 180)
+        (length 2.54)
+        (name "VCC" (effects (font (size 1.27 1.27))))
+        (number "16" (effects (font (size 1.27 1.27))))
+      )
+    )
+    (property "Manufacturer" "Texas Instruments" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Description" "10Ω 4 SPDT(SPDT)" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Operating Temperature" "-40℃~+85℃" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Number of Channels" "4" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "On-State Resistance (Max)" "10Ω" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Switch Circuit" "SPDT(SPDT)" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Supply Voltage" "4V~5.5V" (effects (font (size 1.27 1.27)) (hide yes)))
+  )
+
+    (symbol "USB2412-DZK-TR"
+    (in_bom yes)
+    (on_board yes)
+    (property
+      "Reference"
+      "U"
+      
+      (at 0 22.86 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Value"
+      "USB2412-DZK-TR"
+      
+      (at 0 -22.86 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Footprint"
+      "JLCPCB_Communication_Interface_Chip_UART_485_232:QFN-28_L5.0-W5.0-P0.50-BL-EP3.3"
+      
+      (at 0 -25.40 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "LCSC Part"
+      "C622609"
+      
+      (at 0 -27.94 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (symbol "USB2412-DZK-TR_0_1"
+      (rectangle
+        (start -24.13 20.32)
+        (end 25.40 -20.32)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (circle
+        (center -23.62 19.81)
+        (radius 0.38)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (pin unspecified line
+        (at 27.94 17.78 180)
+        (length 2.54)
+        (name "EP" (effects (font (size 1.27 1.27))))
+        (number "29" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 15.24 180)
+        (length 2.54)
+        (name "USBDM_DN1" (effects (font (size 1.27 1.27))))
+        (number "28" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 12.70 180)
+        (length 2.54)
+        (name "VDD33" (effects (font (size 1.27 1.27))))
+        (number "27" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 10.16 180)
+        (length 2.54)
+        (name "RBIAS" (effects (font (size 1.27 1.27))))
+        (number "26" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 7.62 180)
+        (length 2.54)
+        (name "PLLFILT" (effects (font (size 1.27 1.27))))
+        (number "25" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 5.08 180)
+        (length 2.54)
+        (name "XTALIN/CLKIN" (effects (font (size 1.27 1.27))))
+        (number "24" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 2.54 180)
+        (length 2.54)
+        (name "XTALOUT" (effects (font (size 1.27 1.27))))
+        (number "23" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 -0.00 180)
+        (length 2.54)
+        (name "USBDP_UP" (effects (font (size 1.27 1.27))))
+        (number "22" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 -2.54 180)
+        (length 2.54)
+        (name "USBDM_UP" (effects (font (size 1.27 1.27))))
+        (number "21" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 -5.08 180)
+        (length 2.54)
+        (name "VDD33" (effects (font (size 1.27 1.27))))
+        (number "20" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 -7.62 180)
+        (length 2.54)
+        (name "SUSP_IND/NON_REM0" (effects (font (size 1.27 1.27))))
+        (number "19" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 -10.16 180)
+        (length 2.54)
+        (name "VBUS_DET" (effects (font (size 1.27 1.27))))
+        (number "18" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 -12.70 180)
+        (length 2.54)
+        (name "RESET_N" (effects (font (size 1.27 1.27))))
+        (number "17" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 -15.24 180)
+        (length 2.54)
+        (name "HS_IND" (effects (font (size 1.27 1.27))))
+        (number "16" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 27.94 -17.78 180)
+        (length 2.54)
+        (name "TEST1" (effects (font (size 1.27 1.27))))
+        (number "15" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 -17.78 0)
+        (length 2.54)
+        (name "VDD33" (effects (font (size 1.27 1.27))))
+        (number "14" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 -15.24 0)
+        (length 2.54)
+        (name "NON_REM1" (effects (font (size 1.27 1.27))))
+        (number "13" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 -12.70 0)
+        (length 2.54)
+        (name "OCS_N2" (effects (font (size 1.27 1.27))))
+        (number "12" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 -10.16 0)
+        (length 2.54)
+        (name "PRTPWR2" (effects (font (size 1.27 1.27))))
+        (number "11" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 -7.62 0)
+        (length 2.54)
+        (name "VDD33" (effects (font (size 1.27 1.27))))
+        (number "10" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 -5.08 0)
+        (length 2.54)
+        (name "CRFILT" (effects (font (size 1.27 1.27))))
+        (number "9" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 -2.54 0)
+        (length 2.54)
+        (name "OCS_N1" (effects (font (size 1.27 1.27))))
+        (number "8" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 -0.00 0)
+        (length 2.54)
+        (name "PRTPWR1" (effects (font (size 1.27 1.27))))
+        (number "7" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 2.54 0)
+        (length 2.54)
+        (name "TEST" (effects (font (size 1.27 1.27))))
+        (number "6" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 5.08 0)
+        (length 2.54)
+        (name "NC" (effects (font (size 1.27 1.27))))
+        (number "5" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 7.62 0)
+        (length 2.54)
+        (name "VDD33" (effects (font (size 1.27 1.27))))
+        (number "4" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 10.16 0)
+        (length 2.54)
+        (name "USBDP_DN2" (effects (font (size 1.27 1.27))))
+        (number "3" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 12.70 0)
+        (length 2.54)
+        (name "USBDM_DN2" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at -26.67 15.24 0)
+        (length 2.54)
+        (name "USBDP_DN1" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+    )
+    (property "Manufacturer" "Microchip Tech" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Description" "Hub Controller USB" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Operating Temperature" "0℃~+70℃" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Applications Function" "Hub Controller" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Supply Voltage" "3V~3.6V" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Protocol" "USB" (effects (font (size 1.27 1.27)) (hide yes)))
+  )
+
+)

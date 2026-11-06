@@ -1,0 +1,132 @@
+(kicad_symbol_lib
+  (version 20211014)
+  (generator https://github.com/uPesy/easyeda2kicad.py)
+    (symbol "JS102011JCQN"
+    (in_bom yes)
+    (on_board yes)
+    (property
+      "Reference"
+      "SW"
+      
+      (at 0 8.89 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Value"
+      "JS102011JCQN"
+      
+      (at 0 -1.27 0)
+      (effects (font (size 1.27 1.27) ) )
+    )
+    (property
+      "Footprint"
+      "JLCPCB_Switches:SW-SMD_JS102011JCQN"
+      
+      (at 0 -3.81 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "Datasheet"
+      "https://lcsc.com/product-detail/Others_C-K-JS102011JCQN_C221659.html"
+      
+      (at 0 -6.35 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (property
+      "LCSC Part"
+      "C221659"
+      
+      (at 0 -8.89 0)
+      (effects (font (size 1.27 1.27) ) hide)
+    )
+    (symbol "JS102011JCQN_0_1"
+      (rectangle
+        (start -3.05 -1.78)
+        (end 0.51 -2.54)
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type background))
+      )
+      (polyline
+        (pts
+          (xy -3.05 -3.81) (xy 3.81 -3.81) (xy 2.29 -3.56)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -2.54 1.27) (xy -2.54 -1.78) (xy -2.29 -1.02)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy -2.54 -1.78) (xy -2.79 -1.02)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0.00 1.27) (xy 0.00 -1.78) (xy 0.25 -1.02)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 0.00 -1.78) (xy -0.25 -1.02)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 2.54 1.27) (xy 2.54 -1.78) (xy 2.79 -1.02)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (polyline
+        (pts
+          (xy 2.54 -1.78) (xy 2.29 -1.02)
+        )
+        (stroke (width 0) (type default) (color 0 0 0 0))
+        (fill (type none))
+      )
+      (pin unspecified line
+        (at -2.54 3.81 270)
+        (length 2.54)
+        (name "1" (effects (font (size 1.27 1.27))))
+        (number "1" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 0.00 3.81 270)
+        (length 2.54)
+        (name "2" (effects (font (size 1.27 1.27))))
+        (number "2" (effects (font (size 1.27 1.27))))
+      )
+      (pin unspecified line
+        (at 2.54 3.81 270)
+        (length 2.54)
+        (name "3" (effects (font (size 1.27 1.27))))
+        (number "3" (effects (font (size 1.27 1.27))))
+      )
+    )
+    (property "Manufacturer" "C&K" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Description" "300mA Brick nogging SPDT 6V 5000次" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Mounting Style" "Brick nogging" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Operating Temperature" "-40℃~+85℃" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Current Rating (AC)" "-" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Current Rating (DC)" "300mA" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Pin Style" "J pin" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Actuator Style" "Rectangular columnar" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Circuit" "SPDT" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Switch Height" "-" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Voltage Rating (DC)" "6V" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Mechanical Life" "5000次" (effects (font (size 1.27 1.27)) (hide yes)))
+    (property "Voltage Rating (AC)" "-" (effects (font (size 1.27 1.27)) (hide yes)))
+  )
+
+)

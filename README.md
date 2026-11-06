@@ -24,7 +24,7 @@ The board interfaces directly with the factory navigation module and provides:
 - Microphone input
 - Integration with the BMW I-Bus for power management and button control
 - Two M.2 Key E expansion slots
-- A microSD card slot for CM4 Lite modules
+- A CSI camera connector
 - An Apple MFi authentication coprocessor
 
 The hardware is designed to run [NavBridge App](https://github.com/DrZedEau/NavBridge_App), a standalone Android Auto head unit for the Raspberry Pi, or the [LIVI](https://github.com/f-io/LIVI) project.
@@ -47,21 +47,24 @@ The hardware is designed to run [NavBridge App](https://github.com/DrZedEau/NavB
   - Stereo line output
   - Mono microphone input with bias
 - Two M.2 Key E slots, powered by a dedicated 3.3 V / 2 A buck converter (**AP63203**)
-  - CN5: PCIe x1 + USB 2.0
-  - CN6: USB 2.0 only
-- microSD card slot with a switched supply, for CM4 Lite / CM5 Lite
+  - CN6: PCIe x1 + USB 2.0
+  - CN7: USB 2.0 only
+- 22-pin CSI camera connector (CAM1, 2 lanes) on the bottom side
 - Apple **MFi343S00177** authentication coprocessor on I²C
 - Auxiliary 5 V output connector
+- SWD connector for the STM32
+
+The board has no SD card slot, so it needs a Compute Module with eMMC (not a Lite module).
 
 ### Vehicle Integration
 
-- Reads and writes the BMW I-Bus through an **ATA663231** LIN transceiver
+- Two **ATA663231** LIN transceivers: one on the car I-Bus, one on the navigation module's I-Bus, with the MCU in between
 - **STM32C071** microcontroller for:
   - Raspberry Pi power management
   - OEM button translation
   - Composite sync (CSYNC) generation for the OEM display
   - Video source selection
-- The MCU is powered from the car battery through the LIN transceiver's built-in 3.3 V regulator, so it keeps watching the I-Bus while the Raspberry Pi is off
+- The MCU is powered from the car battery through the car-side LIN transceiver's built-in 3.3 V regulator, so it keeps watching the I-Bus while the Raspberry Pi is off
 - No modifications to the factory wiring or infotainment system are required
 
 ---
@@ -72,6 +75,10 @@ The hardware is designed to run [NavBridge App](https://github.com/DrZedEau/NavB
   <img src="images/PCB/navbridge_cm4_pcb_top.png" width="600">
 </p>
 
+<p align="center">
+  <img src="images/PCB/navbridge_cm4_pcb_bottom.png" width="600">
+</p>
+
 ### Connectors
 
 | Ref | Connector | Use |
@@ -79,13 +86,14 @@ The hardware is designed to run [NavBridge App](https://github.com/DrZedEau/NavB
 | CN1, CN2 | Hirose DF40C-100DS | Raspberry Pi CM4 / CM5 |
 | CN3 | Molex Micro-Fit 3.0, 12 pins (43045-1200) | To the navigation module |
 | CN4 | 2 × 9 pin header, 2.54 mm, right angle | Car harness (X1313 connector) |
-| CN5 | M.2 Key E | PCIe x1 + USB 2.0 module |
-| CN6 | M.2 Key E | USB 2.0 module |
-| CN7 | JST GH, 2 pins | Auxiliary +5 V output |
-| U14 | JST GH, 2 pins | Microphone input |
-| U15 | JST GH, 3 pins | Stereo line output |
+| CN5 | 2 × 5 pin header, 1.27 mm | STM32 SWD |
+| CN6 | M.2 Key E | PCIe x1 + USB 2.0 module |
+| CN7 | M.2 Key E | USB 2.0 module |
+| CN8 | JST GH, 2 pins | Auxiliary +5 V output |
+| U1 | JST GH, 3 pins | Stereo line output |
+| U2 | JST GH, 2 pins | Microphone input |
+| U18 | 22-pin FPC, 0.5 mm (bottom side) | CSI camera (CAM1) |
 | J1 | USB-C | Raspberry Pi flashing and bench power |
-| CARD1 | microSD | Storage for CM4 Lite / CM5 Lite |
 
 #### CN4 – Car harness
 
@@ -106,32 +114,32 @@ The hardware is designed to run [NavBridge App](https://github.com/DrZedEau/NavB
 | Pin | Signal | Pin | Signal |
 |---|---|---|---|
 | 1 | GND | 7 | +BATT |
-| 2 | GND | 8 | I-Bus |
+| 2 | GND | 8 | I-Bus (navigation side) |
 | 3 | GND | 9 | Red in |
 | 4 | GND | 10 | Green in |
 | 5 | GND | 11 | Blue in |
 | 6 | Nav audio − | 12 | Nav audio + |
 
-+BATT, I-Bus and the navigation audio pass straight through between CN3 and CN4. The red, green and blue signals from the navigation module go through the RGB switch before reaching the display.
++BATT and the navigation audio pass straight through between CN3 and CN4. The I-Bus does not: the car I-Bus (CN4 pin 5) and the navigation module's I-Bus (CN3 pin 8) each have their own ATA663231 transceiver, and the STM32 passes messages between them. The red, green and blue signals from the navigation module go through the RGB switch before reaching the display.
 
 #### Audio connectors
 
 | Connector | Pin 1 | Pin 2 | Pin 3 |
 |---|---|---|---|
-| U14 (microphone) | MIC in | GND | |
-| U15 (line out) | Left | GND | Right |
-| CN7 (aux power) | +5 V | GND | |
+| U2 (microphone) | MIC in | GND | |
+| U1 (line out) | Left | GND | Right |
+| CN8 (aux power) | +5 V | GND | |
 
 ### Buttons and LEDs
 
 | Silkscreen | Part | Function |
 |---|---|---|
-| FLASH | SW1 (slide switch) | Pulls the CM `nRPIBOOT` low and routes the CM USB port to the USB-C connector, for flashing with rpiboot |
+| nRPIBOOT | SW1 (slide switch) | Pulls the CM `nRPIBOOT` low and routes the CM USB port to the USB-C connector, for flashing with rpiboot |
 | RESET | SW2 | STM32 reset |
-| BOOT | SW4 | STM32 BOOT0, to start the USB DFU bootloader |
+| BOOT | SW3 | STM32 BOOT0, to start the USB DFU bootloader |
 | PWR | D2 (red) | CM power LED |
 | ACT | D1 (green) | CM activity LED |
-| STAT | D5 (blue) | STM32 status LED |
+| STAT | D6 (yellow) | STM32 status LED |
 
 ### Power
 
@@ -140,10 +148,16 @@ The hardware is designed to run [NavBridge App](https://github.com/DrZedEau/NavB
        │                                                   ├─ TPS2117 ─ +5 V ─ CM and peripherals
        │                                 USB-C 5 V ────────┘
        │
-       └─ diode ─ ATA663231 LIN transceiver ─ 3.3 V ─┐
-                                                     ├─ TPS2116 ─ 3.3 V ─ STM32, RGB switch
-                  +5 V ─ TLV76733 LDO ─ 3.3 V ───────┘
+       └─ diode ─ ATA663231 (car I-Bus) ─ 3.3 V ─┐
+                                                 ├─ TPS2117 ─ 3.3 V ─ STM32, RGB switch
+                          CM 3.3 V output ───────┘
+
++5 V ─ TLV75533 LDO ─ 3.3 V ─ USB hub, USB switch, video DAC (through a ferrite bead)
++5 V ─ AP63203 buck ─ 3.3 V ─ M.2 slots, camera
++5 V ─ TPS2051B switch ─ PCM2912A audio codec
 ```
+
+The battery fuse holder (FH1) takes a Littelfuse 0451003.MRL (3 A) fuse, fitted by hand after assembly.
 
 The TPS2117 selects between the car supply and USB-C automatically, so the board can be powered on the bench from USB-C alone.
 
@@ -155,16 +169,16 @@ The **TMUX1574** switch, controlled by the STM32, selects which picture reaches 
 
 ### USB
 
-The CM USB 2.0 port goes through a **TS3USB221** switch controlled by the FLASH switch:
+The CM USB 2.0 port goes through a **TS3USB221** switch controlled by the nRPIBOOT switch:
 
-- **FLASH off** (normal use): CM → **USB2514B** hub → STM32, PCM2912A codec, M.2 slot CN5, M.2 slot CN6
-- **FLASH on**: CM → USB-C connector, to flash the eMMC with rpiboot
+- **nRPIBOOT off** (normal use): CM → **USB2514B** hub → STM32, PCM2912A codec, M.2 slot CN6, M.2 slot CN7
+- **nRPIBOOT on**: CM → USB-C connector, to flash the eMMC with rpiboot
 
 ---
 
 ## Using a CM5
 
-The CM5 uses the same connectors as the CM4 and keeps the CM4 pinout for the interfaces this board uses (DPI, USB 2.0, PCIe, SD card, I²C, `nRPIBOOT`, LEDs), so it should work on this board. It has not been tested yet. A few points to keep in mind:
+The CM5 uses the same connectors as the CM4 and keeps the CM4 pinout for the interfaces this board uses (DPI, USB 2.0, PCIe, CSI camera, I²C, `nRPIBOOT`, LEDs), so it should work on this board. It has not been tested yet. A few points to keep in mind:
 
 - The CM5's USB 3.0 ports are not used.
 - CSYNC is generated by the STM32, so the board does not rely on the CM5's RP1 PIO as the [CM5 NavBridge](https://github.com/DrZedEau/CM5_NavBridge) did.
@@ -176,7 +190,7 @@ The CM5 uses the same connectors as the CM4 and keeps the CM4 pinout for the int
 ## Repository Structure
 
 ```text
-hardware/      KiCad project (zipped)
+hardware/      KiCad project (revision 0.2) and the revision 0.1 archive
 firmware/      STM32C071 MCU firmware
 scripts/       Raspberry Pi setup script
 3D/            STL files for printed parts (case and connector)
@@ -189,7 +203,7 @@ The KiCad project in [hardware/](hardware/) was made with KiCad 10 and includes 
 
 ## Project Status
 
-Revision 0.1 is the first revision of the CM4 board.
+Revision 0.2 is the current revision of the CM4 board. Revision 0.1 is kept as an archive in [hardware/](hardware/).
 
 - [x] Schematic and PCB layout
 - [ ] Prototype testing
