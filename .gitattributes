@@ -1,0 +1,5 @@
+# Scripts that run on the Raspberry Pi keep LF line endings on every checkout.
+*.sh    text eol=lf
+
+# Compiled MCU images.
+*.bin   binary

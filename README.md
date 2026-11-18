@@ -207,7 +207,7 @@ Revision 0.2 is the current revision of the CM4 board. Revision 0.1 is kept as a
 
 - [x] Schematic and PCB layout
 - [ ] Prototype testing
-- [ ] STM32 firmware (the CSYNC generator has been validated on a NUCLEO-C071RB)
+- [ ] STM32 firmware: first version in [firmware/](firmware/) (I-Bus bridge, Pi power, video source, CSYNC, USB bootloader), being tested on the prototype
 - [ ] Raspberry Pi setup script
 - [ ] 3D printed case and connector
 

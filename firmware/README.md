@@ -1,16 +1,147 @@
 # STM32 Firmware
 
-Firmware for the **STM32C071KBT6** (U9) on the NavBridge CM4 board. *Not added yet.*
+Firmware for the **STM32C071KBT6** (U9) on the NavBridge CM4 board. Bare-metal C on ST's CMSIS headers, no HAL.
 
-## Role of the MCU
+## What it does
 
-- Generate the composite sync (`CSYNC`) for the BMW display from the Raspberry Pi DPI `HSYNC` and `VSYNC`, with TIM1
-- Read and write the BMW I-Bus through two ATA663231 LIN transceivers: U8 on the car I-Bus, U10 on the navigation module's I-Bus, and pass messages between them
-- Switch the Raspberry Pi 5 V supply on and off (LMR14030 enable)
-- Select the picture sent to the display (Raspberry Pi or factory navigation)
-- Talk to the Raspberry Pi over USB (through the on-board hub)
+- **I-Bus bridge.** Every valid frame heard on the car I-Bus (LIN1, U8) is sent unchanged on the navigation module's I-Bus (LIN2, U10), and the other way round.
+- **I-Bus to the Raspberry Pi.** Every frame from either side is sent to the Pi over USB, one text line per frame, in the format of the CM5 NavBridge firmware. An `RGB RPI` / `RGB NAV` line tells the app which picture is shown, so it only acts on the buttons while it is the Pi's.
+- **Raspberry Pi power.** The 5 V buck is off at power-on. The ignition message turns it on, and it turns off once the Compute Module's 3.3 V rail has gone away.
+- **Video source.** The RGB switch starts on the factory navigation picture. The telephone button toggles between the navigation module and the Pi; the radio and menu buttons bring the navigation picture back.
+- **CSYNC.** Composite sync for the ADV7125, generated from the DPI `HSYNC` and `VSYNC` by TIM1 (progressive scan).
+- **USB update.** A small bootloader of its own lets the Pi update the firmware over USB, see [Bootloader and updates](#bootloader-and-updates).
+- **STAT LED** (D6) on whenever the MCU is powered.
 
-The previous board's ATmega32U4 firmware (power management, I-Bus button translation, CDC emulation) is in the [CM5 NavBridge](https://github.com/DrZedEau/CM5_NavBridge) repository.
+Not implemented yet: the keyboard (HID) button bindings, the CD changer emulation, and a watchdog. The previous board's ATmega32U4 firmware, which has the first two, is in the [CM5 NavBridge](https://github.com/DrZedEau/CM5_NavBridge) repository.
+
+## Behaviour
+
+### I-Bus
+
+Both buses run at 9600 baud, 8 data bits, even parity, 1 stop bit. A frame is: source, length (bytes that follow), destination, data, checksum (XOR of all the bytes is 0).
+
+- Frames are cut out of the byte stream by their length byte and checksum. A byte with a parity, framing or noise error ends the frame being assembled. Only frames with a valid checksum are forwarded and reported.
+- Before sending, the MCU waits until the bus has been quiet for 3 ms. The LIN transceiver echoes the bus, so each byte is checked as it comes back before the next one is sent. If another device talks at the same time, the MCU stops, and sends the whole frame again after a short random delay (up to 8 times).
+- Our own echo is never taken as a received frame, so forwarded frames are not reported twice and do not loop.
+- The transceivers are only enabled once U8 is known to have its 12 V supply (`lin=on` in `STATUS`), see [LIN transceiver supply](#lin-transceiver-supply). On the bench with USB-C only, the I-Bus stays off.
+
+Forwarding in each direction can be switched off in [src/config.h](src/config.h) (`IBUS_FORWARD_CAR_TO_NAV`, `IBUS_FORWARD_NAV_TO_CAR`).
+
+> **Revision 0.2: the navigation-side I-Bus needs a master pull-up.** The board splits the I-Bus: the car side keeps the car's own termination, but the navigation side (U10 to CN3 pin 8) only has U10's internal 30 kΩ slave pull-up. With the navigation module connected that is too weak: in the car every byte sent to it came back distorted (`ibus2` `col` and `err` rising, `tx` at 0, every frame dropped), while with CN3 unplugged the same frames went through. The fix is a LIN master termination on that line: 1 kΩ in series with a diode (e.g. 1N4148) from +BATT (CN3 pin 7, diode anode) to the navigation I-Bus (CN3 pin 8, resistor end), see [hardware/README.md](../hardware/README.md#known-issues).
+
+### Messages the board reacts to
+
+| Message | Frame | Action |
+|---|---|---|
+| Ignition KL-15 on (position 2 or start) | `80 04 BF 11 xx`, bit 1 of `xx` set | Buck on |
+| Telephone button | `F0 04 FF 48 08` | Toggle navigation / Pi picture (Pi only while the CM is on) |
+| AM, FM, TONE, MODE, radio BM | `F0 04 68 48 21/31/04/23/30` | Navigation picture |
+| MENU | `F0 04 FF 48 34` | Navigation picture |
+| INFO | `F0 05 FF 47 00 38` | Navigation picture |
+
+### Power
+
+| State | Buck | USB | CSYNC | RGB switch |
+|---|---|---|---|---|
+| Power-on (car battery connected), or woken by I-Bus activity | off | off | low | navigation |
+| Ignition on | on | | | |
+| CM 3.3 V present (`+3V3_SENSE` high for 50 ms) | | connected | running | |
+| CM 3.3 V gone | off 2 s later | disconnected | low | navigation |
+
+- The Pi shuts itself down when it reads the ignition-off message (NavBridge App: `shutdown = true`). The MCU then sees the 3.3 V rail go away and turns the buck off.
+- If the CM never brings its 3.3 V rail up within 30 s of the buck turning on, the buck is turned off again.
+- The MCU stays powered from the car (car-side ATA663231 regulator) while the CM is off. USB and CSYNC are only active while the CM 3.3 V rail is present, and the sync inputs are pulled down meanwhile, so the MCU never back-powers the USB hub, the video DAC or the CM's DPI pins.
+- A warm reset (RESET button, crash) keeps the buck as it was, so the Pi does not lose power if it runs from the car. The state is kept in `PWR_BKP0R`, which only a power-on reset clears. A USB update keeps it too: the firmware and the bootloader hand over by jumping, and the pin stays driven.
+
+### Parked car: transceiver sleep
+
+With the CM off, the MCU runs from the car-side ATA663231's 3.3 V regulator. Once the CM and the buck are off and neither I-Bus has carried a byte for 30 s (`IBUS_SLEEP_TIMEOUT_MS` in [src/config.h](src/config.h)), the firmware puts both transceivers into Sleep mode (about 9 µA each), the navigation side first. The car-side one's regulator then switches off, and the MCU with it. The board then draws only the transceivers' sleep current from the battery.
+
+The next I-Bus activity wakes the car-side transceiver (any byte holds the bus low longer than its 50 to 150 µs wake-up time). Its regulator comes back, the MCU starts (bootloader, then firmware), and the transceivers are back in Normal mode within a few milliseconds. The frames sent while the MCU starts are not seen; the ignition message, which comes later, is.
+
+Sleep follows the ATA663231 datasheet (section 1.2.3): EN falls together with TXD, so no dominant pulse reaches the bus. On U8 both are on GPIOB and fall in one register write; on U10 EN (PB4) falls a few nanoseconds before TXD (PA4), within the 3.2 µs the datasheet allows. If the MCU is still powered 0.5 s after (something else supplies it), both transceivers are woken again and `sleepfail` in `STATUS` counts it.
+
+On the bench this shows with 12 V on `+BATT` and the CM off (no USB-C): the STAT LED goes off 30 s after power-up, and pulling the car I-Bus (CN4 pin 5) to GND for a moment brings it back.
+
+> **The CM must turn its 3.3 V rail off when it shuts down.** On a CM5 that needs `POWER_OFF_ON_HALT=1` and `WAKE_ON_GPIO=0` in the bootloader EEPROM (`sudo rpi-eeprom-config --edit`). Otherwise the rail stays up after `shutdown`, and the buck stays on until the battery is disconnected.
+
+### CSYNC
+
+The DPI mode of the BMW display (`config.txt`: 8 MHz pixel clock, `hsync=40`, 508 pixels per line, `hsync-invert`, `vsync-invert`) gives:
+
+- HSYNC width = hsync pixels / pixel clock = 40 / 8 MHz = **5.0 µs**
+- Line period = total pixels / pixel clock = 508 / 8 MHz = **63.5 µs**
+
+As in the progressive program of Raspberry Pi's [dpi_csync.c](https://github.com/raspberrypi/utils/blob/master/piolib/examples/dpi_csync.c), CSYNC starts on each HSYNC leading edge and lasts one HSYNC width (5.0 µs). While VSYNC is active, it lasts one line minus one HSYNC width (58.5 µs). CSYNC is active low, like the ADV7125 `SYNC` input.
+
+TIM1 does it in hardware, with no interrupt per line: each HSYNC leading edge restarts the counter (slave reset mode on PA8), CH2 drives CSYNC on PA9 in PWM mode for the pulse width, and the VSYNC interrupt (PA6) chooses the width. A VSYNC change that comes during the HSYNC part of a pulse applies to that pulse, as the RP1 program reads VSYNC at the end of HSYNC.
+
+The widths are set in pixels in [src/config.h](src/config.h) and scaled to the line period that TIM1 measures, so the internal oscillator's tolerance cancels out: the pulses have the accuracy of the Pi's crystal. CSYNC only runs while the measured line period is within 1/16 of 63.5 µs; otherwise, or when HSYNC stops, it stays idle (high).
+
+A VSYNC edge that comes within 3 µs of the next line waits for that line to start, so the broad pulses start on the same line in every frame. On the prototype the CM5's VSYNC edges come 1.8 µs into the line, inside the HSYNC part, and every change applies to that line (`vspos=86..89 vsnow=... vsnext=0` in `STATUS`).
+
+**Edge phase against the DAC clock.** The ADV7125 latches `SYNC` on the Pi's 8 MHz pixel clock, while the MCU's CSYNC edges sit on its own 48 MHz grid, a fixed delay after the HSYNC edge plus 0 to 21 ns. If that fixed delay puts the edge right at a DAC sampling instant, the DAC catches it one pixel (125 ns) apart from one line to the next, and the picture shakes horizontally. The delay depends on the TI1 input filter, which `CSYNC FILTER n` changes live: 0, 1, 2 and 4 give four different phases, about 21 to 42 ns apart. In the car (prototype, CM5, BMW display) filter 2 made the picture shake, and 0 and 1 were steady; the default is 0 (`CSYNC_INPUT_FILTER` in [src/csync.c](src/csync.c)), the farthest from the bad phase. Another board or Compute Module could put the bad phase elsewhere: check the picture, and try `CSYNC FILTER 1`, `2` or `4` if it shakes.
+
+### USB
+
+The MCU is a USB CDC ACM device (virtual serial port) behind the USB2514B hub: `0483:5740`, manufacturer "NavBridge", product "NavBridge CM4", serial number "MCU". On the Pi it is:
+
+```text
+/dev/serial/by-id/usb-NavBridge_NavBridge_CM4_MCU-if00
+```
+
+The NavBridge App's `[ibus] device` setting has to point there instead of the ATmega32U4's port.
+
+The MCU sends one line per I-Bus frame, while the port is open (DTR set):
+
+```text
+IBUS1 RX <ms since start> <frame in hex>     frame heard on the car I-Bus (LIN1)
+IBUS2 RX <ms since start> <frame in hex>     frame heard on the navigation I-Bus (LIN2)
+```
+
+For example `IBUS1 RX 7323494 8004BF110329`. Lines that do not fit in the USB buffer are dropped whole.
+
+It also tells the app which picture the display shows, so the app acts on the buttons only while it is the Pi's:
+
+```text
+RGB RPI      Raspberry Pi picture: the buttons are for the app
+RGB NAV      factory navigation picture: the buttons are for the navigation module and radio
+```
+
+- The line is sent as soon as the port is opened (DTR set), then each time the picture changes. The `RGB` command asks for it again.
+- The buttons that switch the picture (see [Messages the board reacts to](#messages-the-board-reacts-to)) are meant for the board, so their frame always comes while `RGB NAV` holds. A switch to the navigation picture is announced before that frame, and a switch to the Pi after it. The app can drop every button frame received under `RGB NAV` and never act on a switching press.
+- Only the buttons should be dropped. The ignition, speed, lights and other readings are valid whatever the picture; the app needs the ignition-off message to shut the Pi down.
+- If the USB buffer is full, the `RGB` line is not dropped: it goes out as soon as there is room.
+
+It accepts one command per line:
+
+| Command | Reply |
+|---|---|
+| `VERSION` | `VERSION NavBridge-CM4 <git describe>` |
+| `STATUS` | One line with the power, video and I-Bus state, see below |
+| `RGB` | `RGB RPI` or `RGB NAV`: the picture the display shows |
+| `DFU` | `DFU OK`, then hand over to the bootloader for an update (`0483:5741`), see [Bootloader and updates](#bootloader-and-updates) |
+| `DIAG` | `DIAG resetflags=... csr2=... bkp0=... bkp1=... bkptest=ok optr=...`: reset flags, backup registers and option bytes |
+| `CSYNC FILTER n` | Set the HSYNC input filter (0..15) until the next restart, see [CSYNC](#csync) |
+| `IBUS SEND <1\|2> <hex>` | Queue a frame (checksum included) on the car (1) or navigation (2) I-Bus, for tests: `IBUS SEND 2 F0043B480582` |
+
+`STATUS` fields:
+
+| Field | Meaning |
+|---|---|
+| `cm`, `buck`, `rgb`, `lin` | CM 3.3 V present, buck enable, video source, LIN transceivers enabled (only with 12 V) |
+| `idle`, `sleepfail` | Seconds since the last I-Bus byte heard or sent; times the transceivers were put to sleep but the MCU stayed powered |
+| `csync`, `line`, `sync`, `broad` | CSYNC state, measured line period and pulse widths |
+| `vsync`, `filter` | VSYNC seen, HSYNC input filter setting |
+| `vspos`, `vsnow`, `vsnext`, `vswait` | Since the previous `STATUS`: line position (TIM1 ticks of 20.8 ns) of the VSYNC edges; changes applied to the line in progress, from the next line, after waiting for the line to start |
+| `period` | Since the previous `STATUS`: spread of the measured line period (ticks) |
+| `locks`, `losses` | CSYNC lock count, and how often it was lost (HSYNC stopped or changed) |
+| `ibus1`, `ibus2` | Per bus: `rx` frames received, `tx` frames sent, `err` bytes with UART errors, `bad` checksum failures, `col` collisions (our byte came back different), `tmo` echo timeouts (our byte never came back), `drop` frames given up, `q` frames waiting, `bytes` bytes heard from others |
+| `boot0`, `up` | Whether the BOOT0 pin is used (option byte), milliseconds since start |
+
+The `line`, `sync` and `broad` values are counted with the MCU's internal oscillator (±1 %) and printed as if it ran at exactly 48 MHz; the pulses themselves are scaled to the measured line, so their real widths do not depend on it.
+
+The USB clock comes from the internal 48 MHz oscillator, trimmed by the CRS on the host's start-of-frame packets, so the board needs no crystal.
 
 ## Pin map
 
@@ -21,26 +152,103 @@ The previous board's ATmega32U4 firmware (power management, I-Bus button transla
 | 8 | PA1 | – | STAT LED (D6, yellow, active high) |
 | 9 | PA2 | MCU_BUCK_EN | Enable of the 5 V buck that powers the Raspberry Pi (10 kΩ pull-down) |
 | 10 | PA3 | +3V3_SENSE | Compute Module 3.3 V rail through 1 kΩ (high when the CM is on) |
-| 11 | PA4 | MCU_LIN2_TX | USART2 TX to U10 (navigation I-Bus) |
-| 12 | PA5 | MCU_LIN2_RX | USART2 RX from U10 (navigation I-Bus) |
+| 11 | PA4 | MCU_LIN2_TX | USART2 TX (AF1) to U10 (navigation I-Bus) |
+| 12 | PA5 | MCU_LIN2_RX | USART2 RX (AF1) from U10 (navigation I-Bus) |
 | 13 | PA6 | VSYNC | DPI VSYNC input (EXTI6) |
-| 18 | PA8 | HSYNC | DPI HSYNC input (TIM1_CH1) |
-| 19 | PA9 | CSYNC | Composite sync output to the ADV7125 `SYNC` input (TIM1_CH2) |
-| 21 | PA10 | MCU_SWITCHER_IN | TMUX1574 select (video source, 10 kΩ pull-down = factory navigation) |
+| 18 | PA8 | HSYNC | DPI HSYNC input (TIM1_CH1, AF2) |
+| 19 | PA9 | CSYNC | Composite sync output to the ADV7125 `SYNC` input (TIM1_CH2, AF2) |
+| 21 | PA10 | MCU_SWITCHER_IN | TMUX1574 select: low = factory navigation (10 kΩ pull-down), high = Raspberry Pi |
 | 22 | PA11 | USB_MCU_N | USB D− to the hub |
 | 23 | PA12 | USB_MCU_P | USB D+ to the hub |
 | 24 | PA13 | SWDIO | SWD connector |
 | 25 | PA14 / BOOT0 | SWCLK | SWD connector, BOOT button (SW3) through 1 kΩ |
 | 28 | PB4 | MCU_LIN2_EN | U10 `EN` (10 kΩ pull-down) |
 | 29 | PB5 | MCU_LIN1_EN | U8 `EN` (10 kΩ pull-down) |
-| 30 | PB6 | MCU_LIN1_TX | USART1 TX to U8 (car I-Bus) |
-| 31 | PB7 | MCU_LIN1_RX | USART1 RX from U8 (car I-Bus) |
+| 30 | PB6 | MCU_LIN1_TX | USART1 TX (AF0) to U8 (car I-Bus) |
+| 31 | PB7 | MCU_LIN1_RX | USART1 RX (AF0) from U8 (car I-Bus) |
 
 PB6/PB7 and PA4/PA5 belong to the I-Bus and PA2 controls the Raspberry Pi power: do not use them for a debug UART.
 
-The MCU stays powered while the Compute Module is off. Keep `CSYNC` low and the USB peripheral disconnected while `+3V3_SENSE` is low, so the MCU does not back-power the video DAC and the USB hub.
+### LIN transceiver supply
 
-## Flashing
+The car-side ATA663231 (U8) also powers the MCU while the CM is off: its 3.3 V regulator feeds `+3V3_LIN_REG`, the preferred input of the MCU's power mux (U11, TPS2117, `PR1` tied to `VIN1`). The mux switches to it as soon as it rises above about 1 V.
+
+Without 12 V on `+BATT` (bench, USB-C only), U8 is unpowered. Driving its `EN` or `TXD` high, or pulling its `RXD` up, then feeds `+3V3_LIN_REG` through U8's protection diodes. The mux switches the MCU onto that rail, it collapses, and the MCU browns out and restarts over and over: the STAT LED blinks fast and USB never comes up. The firmware therefore keeps every LIN pin floating (`EN` low through its pull-downs, `RXD` and `TXD` pulled down) until U8 is known to be powered:
+
+- the CM 3.3 V rail is absent: then U8's regulator is what powers the MCU;
+- or U8 drives its `RXD` or `TXD` high against the MCU pull-downs, as it does in Silent mode (after a warm reset). An unpowered U8 cannot.
+
+On the bench, connect 12 V before USB-C, or press RESET once both are on. Its `EN` must also never go low while its `TXD` is low: that puts U8 to sleep and switches its regulator off.
+
+## Building
+
+The compiled images are in [bin/](bin/), so building is only needed after changing the code:
+
+| File | Content |
+|---|---|
+| `bin/navbridge-cm4-bootloader.bin` | Bootloader, at `0x08000000` |
+| `bin/navbridge-cm4-mcu.bin` | Firmware, at `0x08004000` |
+| `bin/navbridge-cm4-bootloader-update.bin` | Bootloader updater: a firmware that replaces the bootloader over USB |
+
+The build needs `make` and the Arm GNU toolchain (`arm-none-eabi-gcc`) on the PATH. STM32CubeIDE ships both, under `C:\ST\STM32CubeIDE_*\STM32CubeIDE\plugins\` (`...gnu-tools-for-stm32...\tools\bin` and `...externaltools.make...\tools\bin`). On a Raspberry Pi or another Linux machine: `sudo apt install gcc-arm-none-eabi make`.
+
+```bash
+make release
+```
+
+That builds the three programs into `build/` (`.elf`, `.bin`, `.hex`, `.map`) and copies the three `.bin` files to `bin/`. `make` alone only builds; `make clean` removes `build/`.
+
+## Bootloader and updates
+
+The MCU holds two programs, which hand over to each other by jumping (never by resetting, so the buck keeps its state):
+
+| Address | Size | Content |
+|---|---|---|
+| `0x08000000` | 14 KB | **Bootloader** ([bootloader/](bootloader/)): installed once; replaced only on purpose, with the bootloader updater |
+| `0x08003800` | 2 KB | Firmware info: size and CRC of the firmware, written by the bootloader at the end of a complete download |
+| `0x08004000` | 112 KB | **Firmware** ([src/](src/)): updated over USB as often as needed |
+
+The bootloader runs first at every reset and starts the firmware at once, unless:
+
+- the firmware handed over for an update (`DFU` command);
+- **BOOT** (SW3) is held while **RESET** (SW2) is pressed;
+- there is no valid firmware: blank, interrupted update, or a CRC that no longer matches.
+
+Then it is a USB DFU device, `0483:5741` "NavBridge CM4 bootloader", and the STAT LED blinks fast. A complete download starts the new firmware. Entered with BOOT, it waits until a firmware is written or the MCU is reset. The bootloader keeps the board's rules: it never drives the LIN pins, keeps the buck as it was, and only enables USB while the CM 3.3 V rail is present.
+
+On `DFU`, the firmware clears the firmware info before handing over. So until a complete new firmware has been written, the bootloader stays in update mode, across resets and power cycles too. An interrupted update is fixed by running the update again.
+
+The option bytes stay as they leave the factory (`nBOOT_SEL = 1`): the chip always boots the bootloader. ST's own ROM bootloader (`0483:df11`) is only used once, on a blank chip, to install the NavBridge one. Re-entering ST's bootloader on a programmed chip does not work on this board (see [Bootloader notes](#bootloader-notes)).
+
+### Updating from the Raspberry Pi
+
+The MCU is reached through the on-board USB hub, so the Pi writes it with `dfu-util`. On the Pi, with this repository checked out:
+
+```bash
+sudo apt install dfu-util
+```
+
+```bash
+bash scripts/mcu-flash.sh
+```
+
+[mcu-flash.sh](../scripts/mcu-flash.sh) takes the images from `firmware/bin/` and does whatever the MCU needs:
+
+- **Blank MCU, straight from the factory** (ST's ROM bootloader, `0483:df11`): installs the NavBridge bootloader through it, then the firmware through the bootloader.
+- **Running firmware**: sends `DFU`, waits for the bootloader, writes the firmware.
+- **Already in the bootloader** (BOOT+RESET, or an interrupted update): writes the firmware.
+
+It then waits for the firmware to come back on USB and prints its version. A firmware update takes about 4 s. `dfu-util` runs through `sudo` when the USB device is not writable by the current user (the usual case), so the script asks for the password. Other image files can be given as arguments: `mcu-flash.sh [firmware.bin [bootloader.bin [updater.bin]]]`.
+
+Tested on the prototype (USB-C only): first install on a blank chip, repeated updates from the running firmware, BOOT+RESET, and an update killed after 2 of 7 blocks (the MCU stayed in the bootloader, and the next run finished it).
+
+### Bootloader notes
+
+- **Bootloader version.** The bootloader reports its version as its USB `bcdDevice` (`BOOTLOADER_VERSION` in [src/config.h](src/config.h)), shown by `lsusb -v` and by `mcu-flash.sh --bootloader-update`. 1.00 was the first build: it turned the buck off when it took over for an update, and could start the firmware just before `dfu-util` read its last status (`dfu-util` then exited with an error, the firmware was fine). 1.01 fixes both.
+- **Updating the bootloader itself, over USB** (board on USB-C): `bash scripts/mcu-flash.sh --bootloader-update` on the Pi. The updater ([bootloader/updater.c](bootloader/updater.c)) is a firmware that carries the new bootloader. Installed through the current bootloader, it erases flash page 0 first, writes pages 1 to 6, writes page 0 last, verifies, and hands over to the new bootloader, which then receives the normal firmware. While page 0 is erased the chip counts as empty, so if power is lost in that window it starts ST's DFU at power-on, and `mcu-flash.sh` with the bootloader image reinstalls everything (that recovery has not been tried). Only the updater build can write the bootloader's pages. Tested on the prototype: 1.00 to 1.01 in about 6 s, then five firmware updates with `dfu-util` exiting 0, and an interrupted update recovered.
+- **Over SWD** (see [SWD](#swd)), write the bootloader at `0x08000000`; the bootloader then waits in update mode, and `mcu-flash.sh` writes the firmware over USB (the firmware info that marks it valid is only written by the bootloader).
+- **The PWR backup registers** (`PWR_BKP0R`..`BKP3R`) only keep their low 16 bits. They hold the buck state across a warm reset and the update request; `DIAG` checks them.
+- **ST's ROM bootloader on a programmed chip.** It starts a valid image again, whether entered by a jump or by a reset with `FLASH_ACR.PROGEMPTY` set. With `nBOOT_SEL = 0`, BOOT0 high at reset gave no USB activity at all on this board. Its interface scan uses pins that are wired to other circuits here: PA10 (USART1 RX) is the RGB select with a 10 kΩ pull-down, and PB6/PB7 go to U8. AN2606 also asks that no USB host be connected during that scan, and the hub always is. Not investigated further, since the NavBridge bootloader does not need it.
 
 ### SWD
 
@@ -56,15 +264,38 @@ CN5 is a standard 10-pin 1.27 mm Cortex debug connector:
 
 VTref is connected to the Compute Module 3.3 V rail, so the debugger only sees the target voltage while the CM is on.
 
-### USB DFU
+With an ST-LINK (STM32CubeProgrammer, also bundled with STM32CubeIDE), connecting under reset works whatever the MCU runs:
 
-The MCU can also be flashed over USB with the ROM DFU bootloader, through the on-board hub.
+```bash
+STM32_Programmer_CLI -c port=SWD mode=UR reset=HWrst -e all -w bin/navbridge-cm4-bootloader.bin 0x08000000 -v -hardRst
+```
 
-1. Hold **BOOT** (SW3) and press **RESET** (SW2).
-2. Flash with STM32CubeProgrammer, for example `STM32_Programmer_CLI -c port=USB1 -d firmware.bin 0x08000000 -v -rst`.
+The bootloader then waits in update mode, and `mcu-flash.sh` on the Pi writes the firmware.
 
-> **Option byte nBOOT_SEL.** From the factory the STM32C0 ignores the BOOT0 pin (`nBOOT_SEL = 1`). A blank chip still starts the bootloader on its own, so the first flash should also set `nBOOT_SEL = 0`; otherwise the BOOT button has no effect once firmware is installed and SWD is the only way back in.
+## Files
+
+| File | Content |
+|---|---|
+| [bin/](bin/) | Compiled bootloader, firmware and bootloader updater (`make release`) |
+| [Makefile](Makefile) | Builds the three programs |
+| [src/config.h](src/config.h) | Settings: DPI timing for CSYNC, I-Bus timing and forwarding, power delays, USB IDs |
+| [src/layout.h](src/layout.h) | Flash layout and the bootloader / firmware contract |
+| [src/main.c](src/main.c) | Firmware: start-up, main loop, what each I-Bus frame triggers |
+| [src/board.c](src/board.c) | Shared: clock (HSI48, no crystal), time base, jump between the two programs |
+| [src/hardware.c](src/hardware.c) | Shared: LED, buck enable, RGB switch, 3.3 V sense, LIN enables, BOOT button |
+| [src/flash.c](src/flash.c) | Shared: flash erase and programming (never the bootloader's pages), firmware info and CRC |
+| [src/usb_drd.h](src/usb_drd.h) | Shared: USB peripheral registers, packet memory, power on and off |
+| [src/power.c](src/power.c) | Firmware: buck and CM power logic |
+| [src/csync.c](src/csync.c) | Firmware: CSYNC generator (TIM1, EXTI6) |
+| [src/ibus.c](src/ibus.c), [src/ibus_msg.h](src/ibus_msg.h) | Firmware: I-Bus receive, transmit and bridge; the messages the board reacts to |
+| [src/usb_cdc.c](src/usb_cdc.c) | Firmware: USB CDC ACM device |
+| [src/host.c](src/host.c) | Firmware: lines to and from the Pi |
+| [bootloader/main.c](bootloader/main.c) | Bootloader: start the firmware or stay for an update |
+| [bootloader/dfu.c](bootloader/dfu.c) | Bootloader: USB DFU 1.1 device |
+| [bootloader/updater.c](bootloader/updater.c), [bootloader/image.S](bootloader/image.S) | Bootloader updater: a firmware that replaces the bootloader over USB |
+| `linker/` | `bootloader.ld` and `app.ld` (memory), `sections.ld` (shared) |
+| `vendor/` | ST's CMSIS device files (cmsis-device-c0 v1.4.1) and the CMSIS core headers, unmodified |
 
 ## License
 
-GPL-2.0, see [LICENSE](LICENSE). The CSYNC generator is a port of [mbt28/pico-csync-generator](https://github.com/mbt28/pico-csync-generator), which is also GPL-2.0. Third-party files, such as ST's CMSIS headers, keep their own licences.
+GPL-2.0, see [LICENSE](LICENSE). The CSYNC generator follows [mbt28/pico-csync-generator](https://github.com/mbt28/pico-csync-generator) (GPL-2.0) and Raspberry Pi's [dpi_csync.c](https://github.com/raspberrypi/utils/blob/master/piolib/examples/dpi_csync.c) (BSD-3-Clause). Third-party files, such as ST's CMSIS headers, keep their own licences.
