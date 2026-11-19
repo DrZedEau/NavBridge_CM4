@@ -5,12 +5,12 @@
  * tested on a PC.
  *
  * Picture: the telephone button toggles between the navigation module and the Pi (the Pi
- * only while the CM is on); AM, FM, MODE, the radio BM button and INFO bring the
- * navigation picture back.
+ * only while the CM is on); AM, FM, MODE, the radio BM button, INFO, TONE and SELECT bring
+ * the navigation picture back.
  *
  * Navigation module: while the Pi's picture is shown, the app buttons (ibus_app_button in
- * ibus_msg.h: presets, < >, TONE, MENU, CLOCK, tape direction, SELECT, the knob, and the
- * steering wheel's search, send/end and R/T) are not passed on to it, so that its menus do
+ * ibus_msg.h: presets, < >, MENU, CLOCK, tape direction, the knob, and the steering
+ * wheel's search, send/end and R/T) are not passed on to it, so that its menus do
  * not move behind the Pi's picture. A button's hold and release frames go where its press
  * went, so the navigation module never sees a press without its release. Every other
  * frame, including the buttons that switch the picture, always goes on.

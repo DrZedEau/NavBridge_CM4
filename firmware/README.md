@@ -7,7 +7,7 @@ Firmware for the **STM32C071KBT6** (U9) on the NavBridge CM4 board. Bare-metal C
 - **I-Bus bridge.** Every valid frame heard on the car I-Bus (LIN1, U8) is sent unchanged on the navigation module's I-Bus (LIN2, U10), and the other way round. While the Pi's picture is shown, the app's buttons are kept from the navigation module, see [Buttons](#buttons).
 - **I-Bus to the Raspberry Pi.** Every frame from either side is sent to the Pi over USB, one text line per frame, in the format of the CM5 NavBridge firmware. An `RGB RPI` / `RGB NAV` line tells the app which picture is shown, so it only acts on the buttons while it is the Pi's.
 - **Raspberry Pi power.** The 5 V buck is off at power-on. The ignition message turns it on, and it turns off once the Compute Module's 3.3 V rail has gone away.
-- **Video source.** The RGB switch starts on the factory navigation picture. The telephone button toggles between the navigation module and the Pi; AM, FM, MODE, radio BM and INFO bring the navigation picture back. MENU and TONE are left to the app.
+- **Video source.** The RGB switch starts on the factory navigation picture. The telephone button toggles between the navigation module and the Pi; AM, FM, MODE, radio BM, INFO, TONE and SELECT bring the navigation picture back. MENU is left to the app.
 - **CSYNC.** Composite sync for the ADV7125, generated from the DPI `HSYNC` and `VSYNC` by TIM1 (progressive scan).
 - **USB update.** A small bootloader of its own lets the Pi update the firmware over USB, see [Bootloader and updates](#bootloader-and-updates).
 - **CD changer emulator.** While the ignition is on, the MCU answers the radio as a CD changer, so that the radio's CD mode plays the Pi's audio. Not when the car has a real CD changer, see [CD changer emulator](#cd-changer-emulator).
@@ -38,8 +38,10 @@ Forwarding in each direction can be switched off in [src/config.h](src/config.h)
 | Telephone button | `F0 04 FF 48 08` | Toggle navigation / Pi picture (Pi only while the CM is on) |
 | AM, FM, MODE, radio BM | `F0 04 68 48 21/31/23/30` | Navigation picture |
 | INFO | `F0 05 FF 47 00 38` | Navigation picture |
+| TONE | `F0 04 68 48 04` | Navigation picture |
+| SELECT | `F0 05 FF 47 00 0F` | Navigation picture |
 
-MENU and TONE no longer bring the navigation picture back: they are app buttons, see [Buttons](#buttons).
+TONE and SELECT open the radio's menus, which the radio draws on the navigation module's screen. The radio is on the car side and hears them straight from the board monitor, so they cannot be kept from it: they bring the navigation picture back, to show that menu. MENU does not: it is an app button, see [Buttons](#buttons).
 
 ### Buttons
 
@@ -49,11 +51,9 @@ While the Pi's picture is shown, the app buttons below are not passed on to the 
 |---|---|
 | Presets 1 to 6 | `F0 04 68 48 11`, `01`, `12`, `02`, `13`, `03` |
 | < and > (search left, right) | `F0 04 68 48 10`, `F0 04 68 48 00` |
-| TONE | `F0 04 68 48 04` |
 | MENU | `F0 04 FF 48 34` |
 | CLOCK | `F0 04 FF 48 07` |
 | Tape direction | `F0 04 68 48 14` |
-| SELECT | `F0 05 FF 47 00 0F` |
 | Knob press | `F0 04 3B 48 05` |
 | Knob turns, every step count | `F0 04 3B 49 xx` |
 | Steering wheel search up, down | `50 04 68 3B 01`, `50 04 68 3B 08` |
@@ -62,7 +62,7 @@ While the Pi's picture is shown, the app buttons below are not passed on to the 
 
 - The frames are matched on their source, message and button code, whatever their destination, as the NavBridge app reads them ([src/ibus_msg.h](src/ibus_msg.h), `ibus_app_button`).
 - **A button's hold and release frames go where its press went**, so the navigation module never sees a press without its release.
-- **Every other frame is always passed on**: the buttons that switch the picture (telephone, AM, FM, MODE, radio BM, INFO), other buttons such as eject, and everything that is not a button (ignition, lights, the radio's screen texts, the telephone's data).
+- **Every other frame is always passed on**: the buttons that switch the picture (telephone, AM, FM, MODE, radio BM, INFO, TONE, SELECT), other buttons such as eject, and everything that is not a button (ignition, lights, the radio's screen texts, the telephone's data).
 - This matches the `RGB` lines the app gets (see [USB](#usb)): with `RGB RPI` the app buttons are the app's and the navigation module does not get them; with `RGB NAV` they are the navigation module's and the app ignores them.
 
 `btnkept` in `STATUS` counts the app button frames kept from the navigation module.

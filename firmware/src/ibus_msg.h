@@ -62,23 +62,28 @@ static inline int ibus_is_bmbt_rad_button(const uint8_t *f, uint32_t len, uint8_
 }
 
 /* Buttons that bring the factory navigation picture back: AM, FM, MODE, the radio BM
- * button and INFO (F0 05 FF 47 00 38). MENU and TONE are app buttons (ibus_app_button). */
+ * button, INFO (F0 05 FF 47 00 38), and TONE and SELECT (F0 05 FF 47 00 0F). TONE and
+ * SELECT open the radio's menus, which the radio draws on the navigation module's screen;
+ * the radio hears them on the car side, so they cannot be kept from it. MENU is an app
+ * button (ibus_app_button). */
 static inline int ibus_is_back_to_nav(const uint8_t *f, uint32_t len)
 {
     static const uint8_t info[] = { 0x47, 0x00, 0x38 };
+    static const uint8_t select[] = { 0x47, 0x00, 0x0F };
     return ibus_is_bmbt_rad_button(f, len, 0x21u)     /* AM */
         || ibus_is_bmbt_rad_button(f, len, 0x31u)     /* FM */
         || ibus_is_bmbt_rad_button(f, len, 0x23u)     /* MODE */
         || ibus_is_bmbt_rad_button(f, len, 0x30u)     /* radio BM */
-        || ibus_is(f, len, IBUS_ADDR_BMBT, IBUS_ADDR_LOC, info, sizeof info);
+        || ibus_is_bmbt_rad_button(f, len, 0x04u)     /* TONE */
+        || ibus_is(f, len, IBUS_ADDR_BMBT, IBUS_ADDR_LOC, info, sizeof info)
+        || ibus_is(f, len, IBUS_ADDR_BMBT, IBUS_ADDR_LOC, select, sizeof select);
 }
 
 /* The buttons the app uses while the Pi's picture is shown, whatever the frame's
  * destination (as the app reads them):
  *   board monitor, F0 .. 48 xx (low six bits; 0x40 held, 0x80 released):
- *     presets 1..6 (11 01 12 02 13 03), < and > (10 00), TONE (04), MENU (34), CLOCK (07),
+ *     presets 1..6 (11 01 12 02 13 03), < and > (10 00), MENU (34), CLOCK (07),
  *     tape direction (14), knob press (05)
- *   board monitor, F0 .. 47 00 xx: SELECT (0F)
  *   board monitor knob, F0 .. 49 xx: every turn
  *   steering wheel, 50 .. 3B xx (0x10 held, 0x20 released): search up (01), search down
  *     (08), send/end (80), R/T (40)
@@ -97,7 +102,6 @@ static inline int ibus_app_button(const uint8_t *f, uint32_t len, uint16_t *key,
         switch (code & 0x3Fu) {
         case 0x11: case 0x01: case 0x12: case 0x02: case 0x13: case 0x03:  /* presets */
         case 0x10: case 0x00:  /* < and > */
-        case 0x04:             /* TONE */
         case 0x34:             /* MENU */
         case 0x07:             /* CLOCK */
         case 0x14:             /* tape direction */
@@ -106,10 +110,6 @@ static inline int ibus_app_button(const uint8_t *f, uint32_t len, uint16_t *key,
         default:
             return 0;
         }
-        phase = 0xC0u;
-    } else if (f[0] == IBUS_ADDR_BMBT && msg == 0x47u && ibus_data_len(len) >= 3u
-               && (f[5] & 0x3Fu) == 0x0Fu) {   /* SELECT */
-        code = f[5];
         phase = 0xC0u;
     } else if (f[0] == IBUS_ADDR_BMBT && msg == 0x49u) {
         code = 0;       /* each turn stands alone */

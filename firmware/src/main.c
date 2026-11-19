@@ -9,7 +9,7 @@
  * - Ignition on (KL-15) turns the Raspberry Pi's 5 V buck on; it turns off once the CM
  *   3.3 V rail goes away (the Pi has shut down).
  * - The telephone button toggles the display between the navigation module and the Pi;
- *   AM, FM, MODE, radio BM and INFO bring the navigation picture back.
+ *   AM, FM, MODE, radio BM, INFO, TONE and SELECT bring the navigation picture back.
  * - CSYNC for the ADV7125, from the DPI HSYNC and VSYNC (TIM1).
  * - CD changer emulator while the ignition is on, unless the car has a real CD changer, so
  *   that the radio's CD mode plays the Pi's audio.
