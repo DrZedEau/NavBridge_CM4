@@ -13,6 +13,7 @@
 #define IBUS_ADDR_BMBT 0xF0u  /* board monitor buttons */
 #define IBUS_ADDR_LOC  0xFFu  /* local broadcast */
 #define IBUS_ADDR_RAD  0x68u  /* radio */
+#define IBUS_ADDR_MFL  0x50u  /* steering wheel buttons */
 
 static inline uint32_t ibus_data_len(uint32_t len)
 {
@@ -60,19 +61,76 @@ static inline int ibus_is_bmbt_rad_button(const uint8_t *f, uint32_t len, uint8_
     return ibus_is(f, len, IBUS_ADDR_BMBT, IBUS_ADDR_RAD, d, sizeof d);
 }
 
-/* Buttons that bring the factory navigation picture back: AM, FM, TONE, MODE, the radio
- * BM button, MENU (F0 04 FF 48 34) and INFO (F0 05 FF 47 00 38). */
+/* Buttons that bring the factory navigation picture back: AM, FM, MODE, the radio BM
+ * button and INFO (F0 05 FF 47 00 38). MENU and TONE are app buttons (ibus_app_button). */
 static inline int ibus_is_back_to_nav(const uint8_t *f, uint32_t len)
 {
-    static const uint8_t menu[] = { 0x48, 0x34 };
     static const uint8_t info[] = { 0x47, 0x00, 0x38 };
     return ibus_is_bmbt_rad_button(f, len, 0x21u)     /* AM */
         || ibus_is_bmbt_rad_button(f, len, 0x31u)     /* FM */
-        || ibus_is_bmbt_rad_button(f, len, 0x04u)     /* TONE */
         || ibus_is_bmbt_rad_button(f, len, 0x23u)     /* MODE */
         || ibus_is_bmbt_rad_button(f, len, 0x30u)     /* radio BM */
-        || ibus_is(f, len, IBUS_ADDR_BMBT, IBUS_ADDR_LOC, menu, sizeof menu)
         || ibus_is(f, len, IBUS_ADDR_BMBT, IBUS_ADDR_LOC, info, sizeof info);
+}
+
+/* The buttons the app uses while the Pi's picture is shown, whatever the frame's
+ * destination (as the app reads them):
+ *   board monitor, F0 .. 48 xx (low six bits; 0x40 held, 0x80 released):
+ *     presets 1..6 (11 01 12 02 13 03), < and > (10 00), TONE (04), MENU (34), CLOCK (07),
+ *     tape direction (14), knob press (05)
+ *   board monitor, F0 .. 47 00 xx: SELECT (0F)
+ *   board monitor knob, F0 .. 49 xx: every turn
+ *   steering wheel, 50 .. 3B xx (0x10 held, 0x20 released): search up (01), search down
+ *     (08), send/end (80), R/T (40)
+ * *key names the button: the message id, and the code without its hold and release bits.
+ * *press is 1 for a press or a knob turn, 0 for a hold or a release.
+ * Returns 0 for any other frame. */
+static inline int ibus_app_button(const uint8_t *f, uint32_t len, uint16_t *key, int *press)
+{
+    if (ibus_data_len(len) < 2u) {
+        return 0;
+    }
+    const uint8_t msg = f[3];
+    uint8_t code = f[4];
+    uint8_t phase;  /* the hold and release bits */
+    if (f[0] == IBUS_ADDR_BMBT && msg == 0x48u) {
+        switch (code & 0x3Fu) {
+        case 0x11: case 0x01: case 0x12: case 0x02: case 0x13: case 0x03:  /* presets */
+        case 0x10: case 0x00:  /* < and > */
+        case 0x04:             /* TONE */
+        case 0x34:             /* MENU */
+        case 0x07:             /* CLOCK */
+        case 0x14:             /* tape direction */
+        case 0x05:             /* knob press */
+            break;
+        default:
+            return 0;
+        }
+        phase = 0xC0u;
+    } else if (f[0] == IBUS_ADDR_BMBT && msg == 0x47u && ibus_data_len(len) >= 3u
+               && (f[5] & 0x3Fu) == 0x0Fu) {   /* SELECT */
+        code = f[5];
+        phase = 0xC0u;
+    } else if (f[0] == IBUS_ADDR_BMBT && msg == 0x49u) {
+        code = 0;       /* each turn stands alone */
+        phase = 0;
+    } else if (f[0] == IBUS_ADDR_MFL && msg == 0x3Bu) {
+        switch (code & (uint8_t)~0x30u) {
+        case 0x01:  /* search up */
+        case 0x08:  /* search down */
+        case 0x80:  /* send/end */
+        case 0x40:  /* R/T */
+            break;
+        default:
+            return 0;
+        }
+        phase = 0x30u;
+    } else {
+        return 0;
+    }
+    *key = (uint16_t)(((uint32_t)msg << 8) | (code & (uint8_t)~phase));
+    *press = (code & phase) == 0u;
+    return 1;
 }
 
 #endif

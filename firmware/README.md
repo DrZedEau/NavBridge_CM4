@@ -4,15 +4,16 @@ Firmware for the **STM32C071KBT6** (U9) on the NavBridge CM4 board. Bare-metal C
 
 ## What it does
 
-- **I-Bus bridge.** Every valid frame heard on the car I-Bus (LIN1, U8) is sent unchanged on the navigation module's I-Bus (LIN2, U10), and the other way round.
+- **I-Bus bridge.** Every valid frame heard on the car I-Bus (LIN1, U8) is sent unchanged on the navigation module's I-Bus (LIN2, U10), and the other way round. While the Pi's picture is shown, the app's buttons are kept from the navigation module, see [Buttons](#buttons).
 - **I-Bus to the Raspberry Pi.** Every frame from either side is sent to the Pi over USB, one text line per frame, in the format of the CM5 NavBridge firmware. An `RGB RPI` / `RGB NAV` line tells the app which picture is shown, so it only acts on the buttons while it is the Pi's.
 - **Raspberry Pi power.** The 5 V buck is off at power-on. The ignition message turns it on, and it turns off once the Compute Module's 3.3 V rail has gone away.
-- **Video source.** The RGB switch starts on the factory navigation picture. The telephone button toggles between the navigation module and the Pi; the radio and menu buttons bring the navigation picture back.
+- **Video source.** The RGB switch starts on the factory navigation picture. The telephone button toggles between the navigation module and the Pi; AM, FM, MODE, radio BM and INFO bring the navigation picture back. MENU and TONE are left to the app.
 - **CSYNC.** Composite sync for the ADV7125, generated from the DPI `HSYNC` and `VSYNC` by TIM1 (progressive scan).
 - **USB update.** A small bootloader of its own lets the Pi update the firmware over USB, see [Bootloader and updates](#bootloader-and-updates).
+- **CD changer emulator.** While the ignition is on, the MCU answers the radio as a CD changer, so that the radio's CD mode plays the Pi's audio. Not when the car has a real CD changer, see [CD changer emulator](#cd-changer-emulator).
 - **STAT LED** (D6) on whenever the MCU is powered.
 
-Not implemented yet: the keyboard (HID) button bindings, the CD changer emulation, and a watchdog. The previous board's ATmega32U4 firmware, which has the first two, is in the [CM5 NavBridge](https://github.com/DrZedEau/CM5_NavBridge) repository.
+Not implemented yet: the keyboard (HID) button bindings and a watchdog. The previous board's ATmega32U4 firmware, which has the HID bindings, is in the [CM5 NavBridge](https://github.com/DrZedEau/CM5_NavBridge) repository.
 
 ## Behaviour
 
@@ -35,9 +36,58 @@ Forwarding in each direction can be switched off in [src/config.h](src/config.h)
 |---|---|---|
 | Ignition KL-15 on (position 2 or start) | `80 04 BF 11 xx`, bit 1 of `xx` set | Buck on |
 | Telephone button | `F0 04 FF 48 08` | Toggle navigation / Pi picture (Pi only while the CM is on) |
-| AM, FM, TONE, MODE, radio BM | `F0 04 68 48 21/31/04/23/30` | Navigation picture |
-| MENU | `F0 04 FF 48 34` | Navigation picture |
+| AM, FM, MODE, radio BM | `F0 04 68 48 21/31/23/30` | Navigation picture |
 | INFO | `F0 05 FF 47 00 38` | Navigation picture |
+
+MENU and TONE no longer bring the navigation picture back: they are app buttons, see [Buttons](#buttons).
+
+### Buttons
+
+While the Pi's picture is shown, the app buttons below are not passed on to the navigation module, so its menus do not move behind the Pi's picture. They still reach the Pi, and the car side (radio, telephone) gets them as before. With the navigation picture shown, they go to the navigation module as usual.
+
+| App button | Press frame |
+|---|---|
+| Presets 1 to 6 | `F0 04 68 48 11`, `01`, `12`, `02`, `13`, `03` |
+| < and > (search left, right) | `F0 04 68 48 10`, `F0 04 68 48 00` |
+| TONE | `F0 04 68 48 04` |
+| MENU | `F0 04 FF 48 34` |
+| CLOCK | `F0 04 FF 48 07` |
+| Tape direction | `F0 04 68 48 14` |
+| SELECT | `F0 05 FF 47 00 0F` |
+| Knob press | `F0 04 3B 48 05` |
+| Knob turns, every step count | `F0 04 3B 49 xx` |
+| Steering wheel search up, down | `50 04 68 3B 01`, `50 04 68 3B 08` |
+| Steering wheel send/end | `50 04 C8 3B 80` |
+| Steering wheel R/T (mode) | `50 04 FF 3B 40` |
+
+- The frames are matched on their source, message and button code, whatever their destination, as the NavBridge app reads them ([src/ibus_msg.h](src/ibus_msg.h), `ibus_app_button`).
+- **A button's hold and release frames go where its press went**, so the navigation module never sees a press without its release.
+- **Every other frame is always passed on**: the buttons that switch the picture (telephone, AM, FM, MODE, radio BM, INFO), other buttons such as eject, and everything that is not a button (ignition, lights, the radio's screen texts, the telephone's data).
+- This matches the `RGB` lines the app gets (see [USB](#usb)): with `RGB RPI` the app buttons are the app's and the navigation module does not get them; with `RGB NAV` they are the navigation module's and the app ignores them.
+
+`btnkept` in `STATUS` counts the app button frames kept from the navigation module.
+
+### CD changer emulator
+
+The Pi's line output (U1) goes to the radio's CD changer input, and the radio only plays that input, in its CD mode (chosen with MODE), when a CD changer answers on the I-Bus at address `18`. The MCU answers as one, with the frames of the CM5 NavBridge firmware ([src/cdchanger.c](src/cdchanger.c)):
+
+| Radio | MCU (address `18`) |
+|---|---|
+| Poll: `68 03 18 01` | Ready `18 04 FF 02 00`, then the status |
+| Request: `68 05 18 38 cc aa` | Status: `18 0A 68 39 ss aa 00 01 00 01 01` |
+
+- Always disc 1, track 1. The status follows the radio's requests: `cc` = 03 play, 02 pause, 01 stop, 04 seek (`aa` 00 back, 01 forward), 06 disc, 0A track (both answered as playing), anything else answered with the current status. Playing is `ss aa` = `02 09`, which makes the radio play the input.
+- The radio's requests reach the Pi like any other frame (`IBUS1 RX ... 680518380A00` for a track change, for example), so the app can turn them into media controls.
+- The MCU's frames go to the radio on the car side, and to the navigation module as well, as a real changer's frames would be forwarded to it. They are not reported to the Pi.
+
+**When it runs:**
+
+- Only while the ignition is on (KL-15, from the IKE's `80 04 BF 11 xx`). It stops answering as soon as the ignition goes off.
+- **Never when the car has a real CD changer.** Any frame from address `18` that is not the MCU's own means a real changer is there: the emulator then stays off until the MCU restarts, which it does at every wake-up of a parked car (see [Parked car: transceiver sleep](#parked-car-transceiver-sleep)). A real changer announces itself (`18 04 FF 02 01`) when the car wakes up, and answers the radio's polls within milliseconds.
+- After the ignition comes on, the MCU first lets a real changer show up. It starts when a radio poll has gone 200 ms without an answer, or after 10 s if the radio has not polled. It then announces itself (`18 04 FF 02 01`), and the radio polls it at once. Both times are in [src/config.h](src/config.h) (`CDCHANGER_ANSWER_MS`, `CDCHANGER_LISTEN_MS`); `CDCHANGER_EMULATOR 0` turns the emulator off.
+- If the MCU restarts while the ignition is already on, the emulator waits for the next ignition message.
+
+`changer` in `STATUS` shows its state: `off` (ignition off), `wait` (ignition on, waiting for a real changer to show up), `on` (answering the radio), `real` (a real changer was heard).
 
 ### Power
 
@@ -130,6 +180,8 @@ It accepts one command per line:
 | Field | Meaning |
 |---|---|
 | `cm`, `buck`, `rgb`, `lin` | CM 3.3 V present, buck enable, video source, LIN transceivers enabled (only with 12 V) |
+| `btnkept` | App button frames from the car kept from the navigation module while the Pi's picture was shown, see [Buttons](#buttons) |
+| `changer` | CD changer emulator: `off`, `wait`, `on` or `real`, see [CD changer emulator](#cd-changer-emulator) |
 | `idle`, `sleepfail` | Seconds since the last I-Bus byte heard or sent; times the transceivers were put to sleep but the MCU stayed powered |
 | `csync`, `line`, `sync`, `broad` | CSYNC state, measured line period and pulse widths |
 | `vsync`, `filter` | VSYNC seen, HSYNC input filter setting |
@@ -288,6 +340,8 @@ The bootloader then waits in update mode, and `mcu-flash.sh` on the Pi writes th
 | [src/power.c](src/power.c) | Firmware: buck and CM power logic |
 | [src/csync.c](src/csync.c) | Firmware: CSYNC generator (TIM1, EXTI6) |
 | [src/ibus.c](src/ibus.c), [src/ibus_msg.h](src/ibus_msg.h) | Firmware: I-Bus receive, transmit and bridge; the messages the board reacts to |
+| [src/buttons.c](src/buttons.c) | Firmware: the picture the buttons select, and which button frames reach the navigation module (no hardware access, testable on a PC) |
+| [src/cdchanger.c](src/cdchanger.c) | Firmware: CD changer emulator (no hardware access, testable on a PC) |
 | [src/usb_cdc.c](src/usb_cdc.c) | Firmware: USB CDC ACM device |
 | [src/host.c](src/host.c) | Firmware: lines to and from the Pi |
 | [bootloader/main.c](bootloader/main.c) | Bootloader: start the firmware or stay for an update |

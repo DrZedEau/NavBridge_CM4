@@ -4,6 +4,8 @@
  */
 #include "host.h"
 #include "board.h"
+#include "buttons.h"
+#include "cdchanger.h"
 #include "config.h"
 #include "csync.h"
 #include "flash.h"
@@ -142,6 +144,11 @@ static void send_status(void)
     p = put_str(p, hw_buck_on() ? "on" : "off");
     p = put_str(p, " rgb=");
     p = put_str(p, hw_rgb() == RGB_RPI ? "rpi" : "nav");
+    p = put_str(p, " btnkept=");
+    p = put_u32(p, buttons_kept());
+    static const char *const changer[] = { "off", "wait", "on", "real" };
+    p = put_str(p, " changer=");
+    p = put_str(p, changer[cdchanger_state()]);
     p = put_str(p, " lin=");
     p = put_str(p, ibus_lin_on() ? "on" : "off");
     p = put_str(p, " idle=");

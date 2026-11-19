@@ -25,6 +25,8 @@ APP_SRCS := $(COMMON_SRCS) \
 	src/power.c \
 	src/csync.c \
 	src/ibus.c \
+	src/buttons.c \
+	src/cdchanger.c \
 	src/usb_cdc.c \
 	src/host.c
 BOOT_SRCS := $(COMMON_SRCS) \

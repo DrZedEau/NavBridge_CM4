@@ -65,6 +65,14 @@
 #define IBUS_SLEEP_TIMEOUT_MS       30000u
 
 /* ---------------------------------------------------------------------------------------
+ * CD changer emulator (src/cdchanger.h): answers the radio as a CD changer (address 18)
+ * while the ignition is on, unless the car has a real one.
+ */
+#define CDCHANGER_EMULATOR    1        /* 0: never */
+#define CDCHANGER_ANSWER_MS   200u     /* a radio poll unanswered this long: no real changer */
+#define CDCHANGER_LISTEN_MS   10000u   /* ignition on this long without a radio poll: start */
+
+/* ---------------------------------------------------------------------------------------
  * USB (CDC ACM, to the Raspberry Pi through the USB2514B hub)
  *
  * On the Pi: /dev/serial/by-id/usb-NavBridge_NavBridge_CM4_MCU-if00
