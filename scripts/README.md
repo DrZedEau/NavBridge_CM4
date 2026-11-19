@@ -22,16 +22,28 @@ bash scripts/mcu-flash.sh
 
 ## Setup script
 
-Setup script that prepares Raspberry Pi OS on the Compute Module for the NavBridge CM4 board. *Not added yet.*
+[setup.sh](setup.sh) prepares Raspberry Pi OS on the Compute Module (CM4 or CM5) for the NavBridge CM4 board. On the Pi, it runs straight from the `main` branch:
 
-### What it has to configure
+```bash
+curl -fsSL https://raw.githubusercontent.com/DrZedEau/NavBridge_CM4/main/scripts/setup.sh | sudo bash
+```
 
-- 24-bit DPI video output for the ADV7125 video DAC, with the timings of the BMW display
-- USB host mode for the on-board hub (`otg_mode=1` in `config.txt`, the default in recent Raspberry Pi OS)
+Or, from a clone of this repository: `sudo bash scripts/setup.sh`. Reboot afterwards, so that the new `config.txt` applies.
+
+The script only starts once it has been downloaded completely (`main` is called on its last line), and it can be run again: the steps that are already done are skipped or harmless.
+
+### What it does
+
+- Boot time: disables `NetworkManager-wait-online` and removes unused packages (`cloud-init`)
+- Updates the system and installs the required packages, including `dfu-util` to update the STM32 firmware
+- Writes `config.txt` (the previous one is kept as a backup): 24-bit DPI video output for the ADV7125 video DAC with the timings of the BMW display (400 × 240), USB host mode for the on-board hub, and I²C for the MFi authentication coprocessor (SDA0/SCL0, shared with the camera)
+- Loads the `i2c-dev` kernel module now and at every boot, so that the MFi coprocessor's bus shows up as `/dev/i2c-10`
+- Makes sure Bluetooth is not blocked by `rfkill`
+
+### Still to add
+
 - The PCM2912A USB audio codec (output volume at boot)
-- I²C for the MFi authentication coprocessor (SDA0/SCL0, shared with the camera)
 - The CSI camera on CAM1
-- `dfu-util`, to update the STM32 firmware
 - The bootloader EEPROM: `POWER_OFF_ON_HALT=1` and `WAKE_ON_GPIO=0`, so that the CM 3.3 V rail goes off at shutdown and the MCU can turn the 5 V buck off
 - The NavBridge App's I-Bus port: `/dev/serial/by-id/usb-NavBridge_NavBridge_CM4_MCU-if00`
 
