@@ -86,13 +86,8 @@ EOF
 )
 
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
+# @PARTUUID@ becomes the root partition's PARTUUID (findmnt), which differs on each install
 CMDLINE_PARAMS=(
-    console=serial0,115200
-    console=tty3
-    @ROOT@
-    rootfstype=ext4
-    fsck.repair=yes
-    rootwait
     quiet
     loglevel=0
     vt.global_cursor_default=0
@@ -164,24 +159,7 @@ update_config() {
 update_cmdline() {
     section "UPDATE CMDLINE.TXT"
 
-    local -a current=()
-    local param root="" custom
-    if [[ -f "$CMDLINE_FILE" ]]; then
-        read -r -d '' -a current < <(tr -d '\r' < "$CMDLINE_FILE") || true
-    fi
-    for param in "${current[@]}"; do
-        if [[ "$param" == root=* ]]; then
-            root=$param
-        fi
-    done
-
-    if [[ -z "$root" ]]; then
-        error "No root= parameter in $CMDLINE_FILE: it was not changed (the Pi would no longer boot)."
-        exit 1
-    fi
-
     custom="${CMDLINE_PARAMS[*]}"
-    custom=${custom/@ROOT@/"$root"}
 
     if printf '%s\n' "$custom" | cmp -s "$CMDLINE_FILE" -; then
         ok "$CMDLINE_FILE is already up to date."

@@ -37,7 +37,7 @@ The script only starts once it has been downloaded completely (`main` is called 
 - Boot time: disables `NetworkManager-wait-online` and removes unused packages (`cloud-init`)
 - Updates the system and installs the required packages, including `dfu-util` to update the STM32 firmware
 - Writes `config.txt` (the previous one is kept as a backup): 24-bit DPI video output for the ADV7125 video DAC with the timings of the BMW display (400 × 240), USB host mode for the on-board hub, and I²C for the MFi authentication coprocessor (SDA0/SCL0, shared with the camera)
-- Writes `cmdline.txt` (the previous one is kept as a backup) for a quiet boot: the console moves to `tty3`, and the kernel messages, the cursor and the systemd status lines no longer show on the display, with the splash screen instead of the Raspberry Pi logos. Only its `root=` parameter is taken from the previous file, because it differs on each install; any other parameter it had, such as the Wi-Fi country (`cfg80211.ieee80211_regdom`), is dropped
+- Writes `cmdline.txt` (the previous one is kept as a backup) for a quiet boot: the console moves to `tty3`, and the kernel messages, the cursor and the systemd status lines no longer show on the display, with the splash screen instead of the Raspberry Pi logos. Its `root=` is the running system's root partition (the PARTUUID that `findmnt` reports, as in `/etc/fstab`), which differs on each install. Any other parameter the previous file had, such as the Wi-Fi country (`cfg80211.ieee80211_regdom`), is dropped
 - Installs the [splash screen](#splash-screen)
 - Loads the `i2c-dev` kernel module now and at every boot, so that the MFi coprocessor's bus shows up as `/dev/i2c-10`
 - Makes sure Bluetooth is not blocked by `rfkill`
