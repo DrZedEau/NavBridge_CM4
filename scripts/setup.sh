@@ -6,8 +6,6 @@
 # - Improves boot time and removes unused packages
 # - Updates the system and installs required packages
 # - Updates config.txt (enables display 400*240p @60HZ and I2C for MFi Chip)
-# - Updates cmdline.txt (quiet boot: no messages or cursor on the display, splash screen)
-# - Installs the boot splash screen (scripts/splash/splash.tga)
 # - Loads the i2c-dev kernel module
 # - Ensures that Bluetooth is not blocked by rfkill
 
@@ -37,7 +35,6 @@ REQUIRED_PACKAGES=(
     vim
     dfu-util
     rfkill
-    rpi-splash-screen-support
 )
 UNUSED_PACKAGES=(
     cloud-init
@@ -84,24 +81,6 @@ dtparam=i2c_csi_dsi0=on
 
 EOF
 )
-
-CMDLINE_FILE="/boot/firmware/cmdline.txt"
-# @PARTUUID@ becomes the root partition's PARTUUID (findmnt), which differs on each install
-CMDLINE_PARAMS=(
-    quiet
-    loglevel=0
-    vt.global_cursor_default=0
-    systemd.show_status=false
-    rd.systemd.show_status=false
-    fullscreen_logo=1
-    fullscreen_logo_name=logo.tga
-)
-
-SPLASH_IMAGE="splash/splash.tga"
-SPLASH_URL="https://raw.githubusercontent.com/DrZedEau/NavBridge_CM4/main/scripts/$SPLASH_IMAGE"
-SPLASH_FIRMWARE="/lib/firmware/logo.tga"
-SPLASH_HOOK="/etc/initramfs-tools/hooks/splash-screen-hook.sh"
-
 
 require_root() {
     if [[ "$EUID" -ne 0 ]]; then
@@ -154,55 +133,6 @@ update_config() {
     backup "$CONFIG_FILE"
     printf '%s\n' "$CUSTOM_CONFIG" > "$CONFIG_FILE"
     ok "$CONFIG_FILE updated. Reboot to apply it."
-}
-
-update_cmdline() {
-    section "UPDATE CMDLINE.TXT"
-
-    custom="${CMDLINE_PARAMS[*]}"
-
-    if printf '%s\n' "$custom" | cmp -s "$CMDLINE_FILE" -; then
-        ok "$CMDLINE_FILE is already up to date."
-        return 0
-    fi
-
-    backup "$CMDLINE_FILE"
-    printf '%s\n' "$custom" > "$CMDLINE_FILE"
-    info "New command line: $custom"
-    ok "$CMDLINE_FILE updated. Reboot to apply it."
-}
-
-install_splash_screen() {
-    section "INSTALL THE SPLASH SCREEN"
-
-    if ! apt-cache show rpi-splash-screen-support >/dev/null 2>&1; then
-        warn "rpi-splash-screen-support is not available on this system: no splash screen."
-        return 0
-    fi
-
-
-    local image script_dir tmp_dir=""
-    script_dir=$(dirname "${BASH_SOURCE[0]:-}")
-    if [[ -f "${BASH_SOURCE[0]:-}" && -f "$script_dir/$SPLASH_IMAGE" ]]; then
-        image="$script_dir/$SPLASH_IMAGE"
-    else
-        tmp_dir=$(mktemp -d)
-        image="$tmp_dir/splash.tga"
-        info "Download $SPLASH_URL"
-        curl -fsSL "$SPLASH_URL" -o "$image"
-    fi
-
-    if cmp -s "$image" "$SPLASH_FIRMWARE" && [[ -f "$SPLASH_HOOK" ]]; then
-        ok "The splash screen is already installed."
-    else
-        info "Add the image to the initramfs"
-        configure-splash --no-cmdline "$image"
-        ok "Splash screen installed ($CMDLINE_FILE already has its parameters). Reboot to see it."
-    fi
-
-    if [[ -n "$tmp_dir" ]]; then
-        rm -rf "$tmp_dir"
-    fi
 }
 
 load_i2c_dev() {
@@ -259,8 +189,6 @@ main() {
     improve_boot_time
     install_packages
     update_config
-    update_cmdline
-    install_splash_screen
     load_i2c_dev
     unblock_bluetooth
 }
