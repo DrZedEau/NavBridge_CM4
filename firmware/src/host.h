@@ -20,6 +20,9 @@
  *   VERSION  reply "VERSION NavBridge-CM4 <version>"
  *   STATUS   reply "STATUS ..." with the power, video and I-Bus state
  *   RGB      reply "RGB RPI" or "RGB NAV"
+ *   RGB RPI  show the Pi's picture, reply "RGB RPI"
+ *   RGB NAV  show the navigation picture, reply "RGB NAV"
+ * The picture starts on the navigation module at every CM start.
  */
 #ifndef HOST_H
 #define HOST_H

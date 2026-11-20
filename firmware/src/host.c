@@ -367,6 +367,11 @@ static void command(const char *cmd)
     } else if (same(cmd, "RGB")) {
         rgb_reported = RGB_UNKNOWN;
         host_report_rgb();
+    } else if (same(cmd, "RGB RPI") || same(cmd, "RGB NAV")) {
+        /* The USB port only exists while the CM is running, so the Pi picture makes sense. */
+        hw_set_rgb(same(cmd, "RGB RPI") ? RGB_RPI : RGB_NAV);
+        rgb_reported = RGB_UNKNOWN;  /* the reply, even when the picture did not change */
+        host_report_rgb();
     } else if ((arg = after(cmd, "CSYNC FILTER ")) != 0) {
         csync_filter_command(arg);
     } else if ((arg = after(cmd, "IBUS SEND ")) != 0) {

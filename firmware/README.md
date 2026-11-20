@@ -7,7 +7,7 @@ Firmware for the **STM32C071KBT6** (U9) on the NavBridge CM4 board. Bare-metal C
 - **I-Bus bridge.** Every valid frame heard on the car I-Bus (LIN1, U8) is sent unchanged on the navigation module's I-Bus (LIN2, U10), and the other way round. While the Pi's picture is shown, the app's buttons are kept from the navigation module, see [Buttons](#buttons).
 - **I-Bus to the Raspberry Pi.** Every frame from either side is sent to the Pi over USB, one text line per frame, in the format of the CM5 NavBridge firmware. An `RGB RPI` / `RGB NAV` line tells the app which picture is shown, so it only acts on the buttons while it is the Pi's.
 - **Raspberry Pi power.** The 5 V buck is off at power-on. The ignition message turns it on, and it turns off once the Compute Module's 3.3 V rail has gone away.
-- **Video source.** The RGB switch starts on the factory navigation picture. The telephone button toggles between the navigation module and the Pi; AM, FM, MODE, radio BM, INFO, TONE and SELECT bring the navigation picture back. MENU is left to the app.
+- **Video source.** The RGB switch starts on the factory navigation picture. The telephone button toggles between the navigation module and the Pi; AM, FM, MODE, radio BM, INFO, TONE and SELECT bring the navigation picture back. MENU is left to the app. The app can also switch it over USB (`RGB RPI`, `RGB NAV`).
 - **CSYNC.** Composite sync for the ADV7125, generated from the DPI `HSYNC` and `VSYNC` by TIM1 (progressive scan).
 - **USB update.** A small bootloader of its own lets the Pi update the firmware over USB, see [Bootloader and updates](#bootloader-and-updates).
 - **CD changer emulator.** While the ignition is on, the MCU answers the radio as a CD changer, so that the radio's CD mode plays the Pi's audio. Not when the car has a real CD changer, see [CD changer emulator](#cd-changer-emulator).
@@ -159,6 +159,7 @@ RGB NAV      factory navigation picture: the buttons are for the navigation modu
 ```
 
 - The line is sent as soon as the port is opened (DTR set), then each time the picture changes. The `RGB` command asks for it again.
+- The picture starts on the navigation module each time the CM starts. The app can switch it with `RGB RPI` (for example when it starts) and `RGB NAV`. The reply is the `RGB` line, even when the picture was already that one.
 - The buttons that switch the picture (see [Messages the board reacts to](#messages-the-board-reacts-to)) are meant for the board, so their frame always comes while `RGB NAV` holds. A switch to the navigation picture is announced before that frame, and a switch to the Pi after it. The app can drop every button frame received under `RGB NAV` and never act on a switching press.
 - Only the buttons should be dropped. The ignition, speed, lights and other readings are valid whatever the picture; the app needs the ignition-off message to shut the Pi down.
 - If the USB buffer is full, the `RGB` line is not dropped: it goes out as soon as there is room.
@@ -170,6 +171,8 @@ It accepts one command per line:
 | `VERSION` | `VERSION NavBridge-CM4 <git describe>` |
 | `STATUS` | One line with the power, video and I-Bus state, see below |
 | `RGB` | `RGB RPI` or `RGB NAV`: the picture the display shows |
+| `RGB RPI` | Show the Pi's picture; reply `RGB RPI` |
+| `RGB NAV` | Show the navigation picture; reply `RGB NAV` |
 | `DFU` | `DFU OK`, then hand over to the bootloader for an update (`0483:5741`), see [Bootloader and updates](#bootloader-and-updates) |
 | `DIAG` | `DIAG resetflags=... csr2=... bkp0=... bkp1=... bkptest=ok optr=...`: reset flags, backup registers and option bytes |
 | `CSYNC FILTER n` | Set the HSYNC input filter (0..15) until the next restart, see [CSYNC](#csync) |
