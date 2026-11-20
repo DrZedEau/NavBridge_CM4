@@ -195,7 +195,7 @@ On a fresh Raspberry Pi OS install on the Compute Module (CM4 or CM5), run:
 curl -fsSL https://raw.githubusercontent.com/DrZedEau/NavBridge_CM4/main/scripts/setup.sh | sudo bash
 ```
 
-Then reboot. The script writes `config.txt` for the board's display and I²C, updates the system and installs the packages it needs, loads `i2c-dev` and unblocks Bluetooth. See [scripts/README.md](scripts/README.md#setup-script) for the details.
+Then reboot. The script writes `config.txt` for the board's display and I²C, sets up a quiet boot with a splash screen, updates the system and installs the packages it needs, loads `i2c-dev` and unblocks Bluetooth. See [scripts/README.md](scripts/README.md#setup-script) for the details.
 
 ---
 
@@ -220,7 +220,7 @@ Revision 0.2 is the current revision of the CM4 board. Revision 0.1 is kept as a
 - [x] Schematic and PCB layout
 - [ ] Prototype testing
 - [ ] STM32 firmware: first version in [firmware/](firmware/) (I-Bus bridge, Pi power, video source, CSYNC, USB bootloader), being tested on the prototype
-- [ ] Raspberry Pi setup script: first version in [scripts/](scripts/) (`config.txt`, packages, I²C, Bluetooth)
+- [ ] Raspberry Pi setup script: first version in [scripts/](scripts/) (`config.txt`, `cmdline.txt`, splash screen, packages, I²C, Bluetooth)
 - [ ] 3D printed case and connector
 
 ---

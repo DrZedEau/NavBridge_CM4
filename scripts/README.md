@@ -28,7 +28,7 @@ bash scripts/mcu-flash.sh
 curl -fsSL https://raw.githubusercontent.com/DrZedEau/NavBridge_CM4/main/scripts/setup.sh | sudo bash
 ```
 
-Or, from a clone of this repository: `sudo bash scripts/setup.sh`. Reboot afterwards, so that the new `config.txt` applies.
+Or, from a clone of this repository: `sudo bash scripts/setup.sh`. Reboot afterwards, so that the new `config.txt`, `cmdline.txt` and splash screen apply.
 
 The script only starts once it has been downloaded completely (`main` is called on its last line), and it can be run again: the steps that are already done are skipped or harmless.
 
@@ -37,8 +37,25 @@ The script only starts once it has been downloaded completely (`main` is called 
 - Boot time: disables `NetworkManager-wait-online` and removes unused packages (`cloud-init`)
 - Updates the system and installs the required packages, including `dfu-util` to update the STM32 firmware
 - Writes `config.txt` (the previous one is kept as a backup): 24-bit DPI video output for the ADV7125 video DAC with the timings of the BMW display (400 × 240), USB host mode for the on-board hub, and I²C for the MFi authentication coprocessor (SDA0/SCL0, shared with the camera)
+- Quiet boot, in `cmdline.txt` (the previous one is kept as a backup): the console moves to `tty3`, and the kernel messages, the cursor and the systemd status lines no longer show on the display (`console=tty3 quiet loglevel=0 vt.global_cursor_default=0 systemd.show_status=false rd.systemd.show_status=false`), with the splash screen instead of the Raspberry Pi logos (`fullscreen_logo=1 fullscreen_logo_name=logo.tga`; `logo.nologo` is removed). The other parameters (`root=`, the serial console…) are kept
+- Installs the [splash screen](#splash-screen)
 - Loads the `i2c-dev` kernel module now and at every boot, so that the MFi coprocessor's bus shows up as `/dev/i2c-10`
 - Makes sure Bluetooth is not blocked by `rfkill`
+
+### Splash screen
+
+[splash/splash.png](splash/splash.png) shows on the display from the start of the kernel until the app draws over it. It goes through Raspberry Pi's [rpi-splash-screen-support](https://github.com/raspberrypi/rpi-splash-screen-support): `configure-splash` puts it in the initramfs as `/lib/firmware/logo.tga`. It runs with `--no-cmdline`, because it would remove `quiet`: the `cmdline.txt` step adds the splash parameters itself.
+
+The kernel reads [splash/splash.tga](splash/splash.tga): an uncompressed 24-bit TGA, 400 × 240 (the display, so it fills it without cropping) and at most 224 colours. To change the picture, replace `splash.png`, then:
+
+```bash
+python3 scripts/splash/make-splash.py scripts/splash/splash.png scripts/splash/splash.tga
+```
+
+[make-splash.py](splash/make-splash.py) only needs Python. It stretches the picture to 400 × 240 (a 16:9 picture then fills the 16:9 screen with its proportions) and reduces it to 224 colours, keeping black pure black. Run through `curl`, the setup script downloads `splash.tga` from the `main` branch; from a clone, it uses the one next to it.
+
+- `logo.nologo` hides the splash screen too, which is why the script removes it.
+- On a quiet boot (`quiet`, `loglevel=0`), the splash screen needs the 6.18 kernel or later: the 6.12 kernel hides it. Check with `uname -r`.
 
 ### Still to add
 
