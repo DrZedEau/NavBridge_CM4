@@ -37,7 +37,7 @@ The script only starts once it has been downloaded completely (`main` is called 
 - Boot time: disables `NetworkManager-wait-online` and removes unused packages (`cloud-init`)
 - Updates the system and installs the required packages, including `dfu-util` to update the STM32 firmware
 - Writes `config.txt` (the previous one is kept as a backup): 24-bit DPI video output for the ADV7125 video DAC with the timings of the BMW display (400 × 240), USB host mode for the on-board hub, and I²C for the MFi authentication coprocessor (SDA0/SCL0, shared with the camera)
-- Quiet boot, in `cmdline.txt` (the previous one is kept as a backup): the console moves to `tty3`, and the kernel messages, the cursor and the systemd status lines no longer show on the display (`console=tty3 quiet loglevel=0 vt.global_cursor_default=0 systemd.show_status=false rd.systemd.show_status=false`), with the splash screen instead of the Raspberry Pi logos (`fullscreen_logo=1 fullscreen_logo_name=logo.tga`; `logo.nologo` is removed). The other parameters (`root=`, the serial console…) are kept
+- Writes `cmdline.txt` (the previous one is kept as a backup) for a quiet boot: the console moves to `tty3`, and the kernel messages, the cursor and the systemd status lines no longer show on the display, with the splash screen instead of the Raspberry Pi logos. Only its `root=` parameter is taken from the previous file, because it differs on each install; any other parameter it had, such as the Wi-Fi country (`cfg80211.ieee80211_regdom`), is dropped
 - Installs the [splash screen](#splash-screen)
 - Loads the `i2c-dev` kernel module now and at every boot, so that the MFi coprocessor's bus shows up as `/dev/i2c-10`
 - Makes sure Bluetooth is not blocked by `rfkill`
@@ -54,7 +54,7 @@ python3 scripts/splash/make-splash.py scripts/splash/splash.png scripts/splash/s
 
 [make-splash.py](splash/make-splash.py) only needs Python. It stretches the picture to 400 × 240 (a 16:9 picture then fills the 16:9 screen with its proportions) and reduces it to 224 colours, keeping black pure black. Run through `curl`, the setup script downloads `splash.tga` from the `main` branch; from a clone, it uses the one next to it.
 
-- `logo.nologo` hides the splash screen too, which is why the script removes it.
+- `logo.nologo` hides the splash screen too: `cmdline.txt` must not have it.
 - On a quiet boot (`quiet`, `loglevel=0`), the splash screen needs the 6.18 kernel or later: the 6.12 kernel hides it. Check with `uname -r`.
 
 ### Still to add

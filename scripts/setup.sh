@@ -87,7 +87,12 @@ EOF
 
 CMDLINE_FILE="/boot/firmware/cmdline.txt"
 CMDLINE_PARAMS=(
+    console=serial0,115200
     console=tty3
+    @ROOT@
+    rootfstype=ext4
+    fsck.repair=yes
+    rootwait
     quiet
     loglevel=0
     vt.global_cursor_default=0
@@ -95,10 +100,6 @@ CMDLINE_PARAMS=(
     rd.systemd.show_status=false
     fullscreen_logo=1
     fullscreen_logo_name=logo.tga
-)
-
-CMDLINE_REMOVED=(
-    logo.nologo
 )
 
 SPLASH_IMAGE="splash/splash.tga"
@@ -160,49 +161,36 @@ update_config() {
     ok "$CONFIG_FILE updated. Reboot to apply it."
 }
 
-cmdline_replaces() {
-    local wanted
-
-    if [[ "$1" == console=* ]]; then
-        [[ "$1" == console=tty* ]]
-        return
-    fi
-
-    for wanted in "${CMDLINE_PARAMS[@]}" "${CMDLINE_REMOVED[@]}"; do
-        if [[ "${1%%=*}" == "${wanted%%=*}" ]]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
 update_cmdline() {
     section "UPDATE CMDLINE.TXT"
 
-    if [[ ! -s "$CMDLINE_FILE" ]]; then
-        error "$CMDLINE_FILE is missing or empty: it was not changed."
+    local -a current=()
+    local param root="" custom
+    if [[ -f "$CMDLINE_FILE" ]]; then
+        read -r -d '' -a current < <(tr -d '\r' < "$CMDLINE_FILE") || true
+    fi
+    for param in "${current[@]}"; do
+        if [[ "$param" == root=* ]]; then
+            root=$param
+        fi
+    done
+
+    if [[ -z "$root" ]]; then
+        error "No root= parameter in $CMDLINE_FILE: it was not changed (the Pi would no longer boot)."
         exit 1
     fi
 
-    local -a current=() updated=()
-    local param
-    read -r -d '' -a current < <(tr -d '\r' < "$CMDLINE_FILE") || true
+    custom="${CMDLINE_PARAMS[*]}"
+    custom=${custom/@ROOT@/"$root"}
 
-    for param in "${current[@]}"; do
-        if ! cmdline_replaces "$param"; then
-            updated+=("$param")
-        fi
-    done
-    updated+=("${CMDLINE_PARAMS[@]}")
-
-    if [[ "${updated[*]}" == "${current[*]}" ]]; then
+    if printf '%s\n' "$custom" | cmp -s "$CMDLINE_FILE" -; then
         ok "$CMDLINE_FILE is already up to date."
         return 0
     fi
 
     backup "$CMDLINE_FILE"
-    printf '%s\n' "${updated[*]}" > "$CMDLINE_FILE"
-    info "New command line: ${updated[*]}"
+    printf '%s\n' "$custom" > "$CMDLINE_FILE"
+    info "New command line: $custom"
     ok "$CMDLINE_FILE updated. Reboot to apply it."
 }
 
