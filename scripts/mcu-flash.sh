@@ -21,8 +21,8 @@
 #     board on USB-C.
 # The firmware is then started and its version printed.
 #
-# Needs dfu-util (sudo apt install dfu-util). dfu-util runs through sudo when the USB device
-# is not writable by the current user (the usual case), so the password is asked for.
+# Needs dfu-util (sudo apt install dfu-util)
+
 set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -59,8 +59,7 @@ wait_for() {
     return 1
 }
 
-# Attribute of the NavBridge bootloader's USB device: devnum (new at each start), bcdDevice
-# (its version).
+# Attribute of the NavBridge bootloader's USB device: devnum (new at each start), bcdDevice (its version).
 nb_attr() {
     local d
     for d in /sys/bus/usb/devices/*; do
