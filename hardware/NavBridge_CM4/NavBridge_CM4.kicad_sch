@@ -5330,16 +5330,6 @@
 	)
 	(wire
 		(pts
-			(xy 48.26 127) (xy 48.26 170.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "06c335ab-1477-4298-8931-7719e6dc4709")
-	)
-	(wire
-		(pts
 			(xy 68.58 144.78) (xy 82.55 144.78)
 		)
 		(stroke
@@ -5347,6 +5337,16 @@
 			(type default)
 		)
 		(uuid "0780c233-b5f5-4a70-9e92-9c09c04977bc")
+	)
+	(wire
+		(pts
+			(xy 48.26 127) (xy 48.26 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "079d5a74-03f7-4ee3-8521-6388ff2eb5e9")
 	)
 	(wire
 		(pts
@@ -12605,7 +12605,7 @@
 	)
 	(symbol
 		(lib_id "lcsc_imported:CHS-01B1")
-		(at 38.1 166.37 90)
+		(at 38.1 166.37 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -12615,7 +12615,7 @@
 		(dnp no)
 		(uuid "bc769b77-1b57-4eb2-a522-1f1cc66e25fc")
 		(property "Reference" "SW1"
-			(at 38.1 169.926 90)
+			(at 38.1 170.688 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12625,7 +12625,7 @@
 			)
 		)
 		(property "Value" "CHS-01B1"
-			(at 38.1 172.466 90)
+			(at 38.1 172.72 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12635,7 +12635,7 @@
 			)
 		)
 		(property "Footprint" "lcsc_footprints:C3312309_SW-SMD_NIDEC_CHS-01B1"
-			(at 48.26 166.37 0)
+			(at 27.94 166.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12646,7 +12646,7 @@
 			)
 		)
 		(property "Datasheet" "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2404031611_Nidec-CHS-01B1_C3312309.pdf"
-			(at 37.973 168.656 0)
+			(at 38.227 164.084 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14291,7 +14291,7 @@
 			(color 0 0 0 0)
 		)
 		(uuid "0994c906-0e42-4761-b4b1-cf01e5e16a38")
-		(property "Sheetname" "SD_Card"
+		(property "Sheetname" "USB-DFP"
 			(at 252.73 93.2684 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14302,7 +14302,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "SD_Card.kicad_sch"
+		(property "Sheetfile" "USB-DFP.kicad_sch"
 			(at 252.73 104.7246 0)
 			(show_name no)
 			(do_not_autoplace no)

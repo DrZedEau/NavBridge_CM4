@@ -40,8 +40,8 @@
         "other_text_upright": false,
         "pads": {
           "drill": 0.0,
-          "height": 0.95,
-          "width": 1.05
+          "height": 0.62,
+          "width": 0.56
         },
         "silk_line_width": 0.1,
         "silk_text_italic": false,
@@ -51,8 +51,8 @@
         "silk_text_upright": false,
         "zones": {
           "border_display_style": 2,
-          "border_hatch_pitch": 0.3,
-          "corner_radius": 0.2,
+          "border_hatch_pitch": 0.5,
+          "corner_radius": 0.3,
           "corner_smoothing": 2,
           "fill_mode": 0,
           "hatch_gap": 1.5,
@@ -62,11 +62,11 @@
           "hatch_thickness": 1.0,
           "min_clearance": 0.2,
           "min_island_area": 10.0,
-          "min_thickness": 0.2,
+          "min_thickness": 0.25,
           "pad_connection": 2,
           "remove_islands": 0,
-          "thermal_relief_gap": 0.25,
-          "thermal_relief_spoke_width": 0.25
+          "thermal_relief_gap": 0.5,
+          "thermal_relief_spoke_width": 0.5
         }
       },
       "diff_pair_dimensions": [
@@ -174,7 +174,7 @@
         {
           "td_onpthpad": true,
           "td_onroundshapesonly": false,
-          "td_onsmdpad": true,
+          "td_onsmdpad": false,
           "td_ontrackend": false,
           "td_onvia": true
         }
@@ -183,7 +183,6 @@
         {
           "td_allow_use_two_tracks": true,
           "td_curve_segcount": 0,
-          "td_enabled": false,
           "td_height_ratio": 1.0,
           "td_length_ratio": 0.5,
           "td_maxheight": 2.0,
@@ -195,7 +194,6 @@
         {
           "td_allow_use_two_tracks": true,
           "td_curve_segcount": 0,
-          "td_enabled": false,
           "td_height_ratio": 1.0,
           "td_length_ratio": 0.5,
           "td_maxheight": 2.0,
@@ -207,7 +205,6 @@
         {
           "td_allow_use_two_tracks": true,
           "td_curve_segcount": 0,
-          "td_enabled": false,
           "td_height_ratio": 1.0,
           "td_length_ratio": 0.5,
           "td_maxheight": 2.0,
@@ -581,8 +578,8 @@
     "meta": {
       "version": 5
     },
-    "net_colors": {},
-    "netclass_assignments": {},
+    "net_colors": null,
+    "netclass_assignments": null,
     "netclass_patterns": [
       {
         "netclass": "USB",
@@ -956,7 +953,7 @@
         "uuid": "30f4fbbf-bdc9-449a-a231-a876d45881e8"
       }
     ],
-    "used_designators": "#PWR1-71,#PWR94-95,C1-70,C72,CN1-9,Card1-2,D1-10,F1,FB1-2,FH1,H1-9,J1-6,L1-3,R1-43,RF1,SW1-4,TP1-2,U1-18,USB1-2,Y1-3",
+    "used_designators": "#PWR1-86,#PWR94-95,FH1,D1-10,C1-80,CN1-9,Card1-2,FB1-2,F1,H1-9,J1-6,L1-4,R1-54,RF1,SW1-4,TP1-2,U1-21,USB1-2,Y1-3",
     "variants": []
   },
   "sheets": [
@@ -982,7 +979,7 @@
     ],
     [
       "0994c906-0e42-4761-b4b1-cf01e5e16a38",
-      "SD_Card"
+      "USB-DFP"
     ],
     [
       "511e0f3c-5796-4b81-8149-15a792bbe9e4",

@@ -3183,7 +3183,7 @@
 			)
 		)
 	)
-	(global_label "USB_SLOT2_P"
+	(global_label "USB_MUX_P"
 		(shape input)
 		(at 88.9 69.85 180)
 		(fields_autoplaced yes)
@@ -3195,7 +3195,7 @@
 		)
 		(uuid "698ad044-ee63-4d96-8698-bfa7adc917bc")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 73.1544 69.85 0)
+			(at 74.9082 69.85 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3447,7 +3447,7 @@
 			)
 		)
 	)
-	(global_label "USB_SLOT2_N"
+	(global_label "USB_MUX_N"
 		(shape input)
 		(at 88.9 67.31 180)
 		(fields_autoplaced yes)
@@ -3459,7 +3459,7 @@
 		)
 		(uuid "f6046cac-c0c2-45be-a63f-c7018ed3ee3a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 73.0939 67.31 0)
+			(at 74.8477 67.31 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3506,7 +3506,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "0196d323-0a0f-4a8f-8fbe-50f302be439b")
-		(property "Reference" "R24"
+		(property "Reference" "R31"
 			(at 231.648 109.22 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3581,7 +3581,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "R24")
+					(reference "R31")
 					(unit 1)
 				)
 			)
@@ -3599,7 +3599,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "075b29b4-f2a9-45ef-aee3-24dd69f82f4c")
-		(property "Reference" "#PWR050"
+		(property "Reference" "#PWR051"
 			(at 158.75 177.8 0)
 			(hide yes)
 			(show_name no)
@@ -3659,7 +3659,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "#PWR050")
+					(reference "#PWR051")
 					(unit 1)
 				)
 			)
@@ -3677,7 +3677,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1fb0b79a-fcfc-43c0-b75d-c94048ce520d")
-		(property "Reference" "#PWR046"
+		(property "Reference" "#PWR047"
 			(at 62.23 187.96 0)
 			(hide yes)
 			(show_name no)
@@ -3737,7 +3737,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "#PWR046")
+					(reference "#PWR047")
 					(unit 1)
 				)
 			)
@@ -3755,7 +3755,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2c6de245-d452-4bfd-ac59-b2d1400c6bb2")
-		(property "Reference" "#PWR047"
+		(property "Reference" "#PWR048"
 			(at 66.04 151.13 0)
 			(hide yes)
 			(show_name no)
@@ -3766,7 +3766,7 @@
 				)
 			)
 		)
-		(property "Value" "+3V3_LDO"
+		(property "Value" "+3V3_BUCK"
 			(at 66.04 142.24 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3815,7 +3815,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "#PWR047")
+					(reference "#PWR048")
 					(unit 1)
 				)
 			)
@@ -3832,7 +3832,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "352604fc-78bc-4a30-afec-ed90edb42447")
-		(property "Reference" "C43"
+		(property "Reference" "C47"
 			(at 210.312 28.956 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4061,7 +4061,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C43")
+					(reference "C47")
 					(unit 1)
 				)
 			)
@@ -4078,7 +4078,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "3a7c1e43-b7f7-4204-9485-f56118acf65f")
-		(property "Reference" "C45"
+		(property "Reference" "C49"
 			(at 210.058 50.546 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4307,7 +4307,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C45")
+					(reference "C49")
 					(unit 1)
 				)
 			)
@@ -4531,7 +4531,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "569488e7-d967-44a8-8248-950b5ca63e9f")
-		(property "Reference" "C42"
+		(property "Reference" "C46"
 			(at 143.002 172.466 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4760,7 +4760,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C42")
+					(reference "C46")
 					(unit 1)
 				)
 			)
@@ -4777,7 +4777,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "63755cd3-0371-4eec-bfab-ef7ce410c8f9")
-		(property "Reference" "C41"
+		(property "Reference" "C45"
 			(at 142.748 148.336 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5006,7 +5006,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C41")
+					(reference "C45")
 					(unit 1)
 				)
 			)
@@ -5023,7 +5023,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "65356c16-52df-4179-9ba8-f7accfa73a72")
-		(property "Reference" "R23"
+		(property "Reference" "R30"
 			(at 214.63 111.76 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5098,7 +5098,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "R23")
+					(reference "R30")
 					(unit 1)
 				)
 			)
@@ -5115,7 +5115,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "6765be33-3e1d-46cf-89f4-2aef224ed110")
-		(property "Reference" "#PWR051"
+		(property "Reference" "#PWR052"
 			(at 201.93 34.29 0)
 			(hide yes)
 			(show_name no)
@@ -5126,7 +5126,7 @@
 				)
 			)
 		)
-		(property "Value" "+3V3_LDO"
+		(property "Value" "+3V3_BUCK"
 			(at 197.612 26.162 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5176,7 +5176,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "#PWR051")
+					(reference "#PWR052")
 					(unit 1)
 				)
 			)
@@ -5193,7 +5193,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "67a1178c-ca3c-4e94-a560-0d26ecedff7a")
-		(property "Reference" "#PWR048"
+		(property "Reference" "#PWR049"
 			(at 71.12 43.18 0)
 			(hide yes)
 			(show_name no)
@@ -5204,7 +5204,7 @@
 				)
 			)
 		)
-		(property "Value" "+3V3_LDO"
+		(property "Value" "+3V3_BUCK"
 			(at 66.802 35.052 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5254,7 +5254,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "#PWR048")
+					(reference "#PWR049")
 					(unit 1)
 				)
 			)
@@ -5271,7 +5271,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "69470f7c-4e05-4844-aca9-6f91538e64b9")
-		(property "Reference" "C40"
+		(property "Reference" "C44"
 			(at 76.454 144.018 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5500,7 +5500,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C40")
+					(reference "C44")
 					(unit 1)
 				)
 			)
@@ -5517,7 +5517,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "6e0249c0-3dc8-46c1-9ed0-a52dae324e0b")
-		(property "Reference" "R21"
+		(property "Reference" "R28"
 			(at 194.818 110.236 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5592,7 +5592,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "R21")
+					(reference "R28")
 					(unit 1)
 				)
 			)
@@ -5609,7 +5609,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "73274bf6-9a00-494c-a897-d9f983b1700d")
-		(property "Reference" "C39"
+		(property "Reference" "C43"
 			(at 58.928 92.202 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5838,7 +5838,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C39")
+					(reference "C43")
 					(unit 1)
 				)
 			)
@@ -5855,7 +5855,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "743b8a08-414a-43e4-99e8-2bedd46290dd")
-		(property "Reference" "C44"
+		(property "Reference" "C48"
 			(at 210.058 40.386 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6084,7 +6084,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C44")
+					(reference "C48")
 					(unit 1)
 				)
 			)
@@ -6102,7 +6102,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "87a62b37-2d4e-4bbb-a224-6f70a30c5250")
-		(property "Reference" "#PWR049"
+		(property "Reference" "#PWR050"
 			(at 134.62 129.54 0)
 			(hide yes)
 			(show_name no)
@@ -6162,7 +6162,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "#PWR049")
+					(reference "#PWR050")
 					(unit 1)
 				)
 			)
@@ -6179,7 +6179,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "8cc17151-c3e5-473f-aaaa-e5c091e9f3a4")
-		(property "Reference" "C37"
+		(property "Reference" "C41"
 			(at 58.928 67.056 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6408,7 +6408,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C37")
+					(reference "C41")
 					(unit 1)
 				)
 			)
@@ -6425,7 +6425,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "90fcfa83-1941-472a-8eb9-dcb3b213c1ca")
-		(property "Reference" "R20"
+		(property "Reference" "R27"
 			(at 185.42 110.49 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6500,7 +6500,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "R20")
+					(reference "R27")
 					(unit 1)
 				)
 			)
@@ -6517,7 +6517,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "aa4cfe1e-d5f6-4dfe-b614-522cad1f5229")
-		(property "Reference" "C36"
+		(property "Reference" "C40"
 			(at 62.23 48.006 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6746,7 +6746,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C36")
+					(reference "C40")
 					(unit 1)
 				)
 			)
@@ -6883,7 +6883,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "c77fe768-fd9f-4a68-98f6-f732655add5f")
-		(property "Reference" "R22"
+		(property "Reference" "R29"
 			(at 205.994 109.982 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6958,7 +6958,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "R22")
+					(reference "R29")
 					(unit 1)
 				)
 			)
@@ -7101,7 +7101,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "df7789d5-3ad4-4562-ba24-af3cbb6c2dd4")
-		(property "Reference" "C38"
+		(property "Reference" "C42"
 			(at 58.928 79.756 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7330,7 +7330,7 @@
 		(instances
 			(project "NavBridge_CM4"
 				(path "/30f4fbbf-bdc9-449a-a231-a876d45881e8/796ff9d4-5397-4b0f-8d6f-933bca019678"
-					(reference "C38")
+					(reference "C42")
 					(unit 1)
 				)
 			)
