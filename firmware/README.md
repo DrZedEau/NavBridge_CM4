@@ -113,7 +113,7 @@ Sleep follows the ATA663231 datasheet (section 1.2.3): EN falls together with TX
 
 On the bench this shows with 12 V on `+BATT` and the CM off (no USB-C): the STAT LED goes off 30 s after power-up, and pulling the car I-Bus (CN4 pin 5) to GND for a moment brings it back.
 
-> **The CM must turn its 3.3 V rail off when it shuts down.** On a CM5 that needs `POWER_OFF_ON_HALT=1` and `WAKE_ON_GPIO=0` in the bootloader EEPROM (`sudo rpi-eeprom-config --edit`). Otherwise the rail stays up after `shutdown`, and the buck stays on until the battery is disconnected.
+> **The CM must turn its 3.3 V rail off when it shuts down.** On a CM4 that needs `POWER_OFF_ON_HALT=1` and `WAKE_ON_GPIO=0` in the bootloader EEPROM (`sudo rpi-eeprom-config --edit`); the CM4 defaults are `POWER_OFF_ON_HALT=0` and `WAKE_ON_GPIO=1`. Otherwise the rail stays up after `shutdown`, and the buck stays on until the battery is disconnected. The CM5 already defaults to `POWER_OFF_ON_HALT=1`, and `WAKE_ON_GPIO` does not apply to it.
 
 ### CSYNC
 

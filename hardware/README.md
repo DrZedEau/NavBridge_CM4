@@ -50,6 +50,7 @@ Not built yet. Changes from revision 0.2:
 - **Navigation I-Bus master termination** on the board: D7 (1N4148W) and R24 (1 kΩ, 1206) from +BATT to IBUS_NAV, next to U10. This replaces the revision 0.2 bodge (see below).
 - **MCU power mux (U11):** R25 (150 kΩ) and R26 (100 kΩ) divide `+3V3_LIN_REG` onto `PR1`, so U11 only selects the LIN regulator above about 2.5 V (see below).
 - **Main power mux (U4):** R10 (330 kΩ) and R11 (100 kΩ) divide `+5V_BUCK` onto `PR1`, so U4 only switches to the car supply once the buck output is above about 4.3 V. With `PR1` tied straight to `VIN1`, as on revision 0.2, and USB-C and the car supply both connected, U4 would switch to the buck at about 1 V while it starts up, and stay on it while it decays at turn-off.
+- **BOOT button (SW3):** now pulls BOOT0 up from the CM 3.3 V rail (`+3V3`) instead of the MCU rail (`+3V3_MUX`). The MCU can only be reflashed with the board powered from USB-C (J1).
 - The auxiliary 5 V connector (CN8) was removed.
 - More GND stitching vias, and teardrops on vias and through-hole pads.
 
