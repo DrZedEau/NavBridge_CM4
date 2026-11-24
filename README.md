@@ -24,6 +24,7 @@ The board interfaces directly with the factory navigation module and provides:
 - Microphone input
 - Integration with the BMW I-Bus for power management and button control
 - Two M.2 Key E expansion slots
+- A USB-C host port for low-power USB devices
 - A CSI camera connector
 - An Apple MFi authentication coprocessor
 
@@ -39,19 +40,20 @@ The hardware is designed to run [NavBridge App](https://github.com/DrZedEau/NavB
 - Raspberry Pi CM4 / CM5 connectors (2 × 100-pin Hirose DF40C)
 - Automotive-grade 5 V / 3.5 A buck converter (**LMR14030-Q1**), switched on and off by the MCU
 - Fused battery input with a **SMCJ24A** TVS diode
-- USB-C port for Raspberry Pi flashing (rpiboot) and bench power, with automatic selection between USB-C and the car supply (**TPS2117**)
-- 4-port USB 2.0 hub (**USB2514B**) for the MCU, the audio codec and both M.2 slots
+- USB-C port (J1) for Raspberry Pi flashing (rpiboot) and bench power, with automatic selection between USB-C and the car supply (**TPS2117**)
+- 3.3 V / 2 A buck converter (**TPS54202**) for the USB hub, the USB switches and the video DAC
+- 4-port USB 2.0 hub (**USB2514B**) for the MCU, the audio codec, M.2 slot CN7, and either M.2 slot CN6 or the USB-C host port
+- USB-C host port (J2), USB 2.0, 500 mA (**TPS2051B**), sharing a hub port with M.2 slot CN6 through a **TS3USB221** switch (SW4)
 - 24-bit video DAC (**ADV7125**) fed by the Raspberry Pi DPI output
 - Analog RGB switch (**TMUX1574**) to select the factory navigation picture or the Raspberry Pi picture
 - Integrated **PCM2912A** USB audio codec
   - Stereo line output
   - Mono microphone input with bias
-- Two M.2 Key E slots, powered by a dedicated 3.3 V / 2 A buck converter (**AP63203**)
-  - CN6: PCIe x1 + USB 2.0
+- Two M.2 Key E slots, powered by a dedicated 3.3 V / 2 A buck converter (**TPS54202**)
+  - CN6: PCIe x1 + USB 2.0 (the USB is shared with the USB-C host port)
   - CN7: USB 2.0 only
 - 22-pin CSI camera connector (CAM1, 2 lanes) on the bottom side
 - Apple **MFi343S00177** authentication coprocessor on I²C
-- Auxiliary 5 V output connector
 - SWD connector for the STM32
 
 The board has no SD card slot, so it needs a Compute Module with eMMC (not a Lite module).
@@ -59,6 +61,7 @@ The board has no SD card slot, so it needs a Compute Module with eMMC (not a Lit
 ### Vehicle Integration
 
 - Two **ATA663231** LIN transceivers: one on the car I-Bus, one on the navigation module's I-Bus, with the MCU in between
+- LIN master termination (1 kΩ + diode) on the navigation-side I-Bus, since the board is the only master on that segment
 - **STM32C071** microcontroller for:
   - Raspberry Pi power management
   - OEM button translation
@@ -89,11 +92,11 @@ The board has no SD card slot, so it needs a Compute Module with eMMC (not a Lit
 | CN5 | 2 × 5 pin header, 1.27 mm | STM32 SWD |
 | CN6 | M.2 Key E | PCIe x1 + USB 2.0 module |
 | CN7 | M.2 Key E | USB 2.0 module |
-| CN8 | JST GH, 2 pins | Auxiliary +5 V output |
 | U1 | JST GH, 3 pins | Stereo line output |
 | U2 | JST GH, 2 pins | Microphone input |
-| U18 | 22-pin FPC, 0.5 mm (bottom side) | CSI camera (CAM1) |
+| U20 | 22-pin FPC, 0.5 mm (bottom side) | CSI camera (CAM1) |
 | J1 | USB-C | Raspberry Pi flashing and bench power |
+| J2 | USB-C | USB 2.0 host port, 500 mA |
 
 #### CN4 – Car harness
 
@@ -128,13 +131,13 @@ The board has no SD card slot, so it needs a Compute Module with eMMC (not a Lit
 |---|---|---|---|
 | U2 (microphone) | MIC in | GND | |
 | U1 (line out) | Left | GND | Right |
-| CN8 (aux power) | +5 V | GND | |
 
 ### Buttons and LEDs
 
 | Silkscreen | Part | Function |
 |---|---|---|
-| nRPIBOOT | SW1 (slide switch) | Pulls the CM `nRPIBOOT` low and routes the CM USB port to the USB-C connector, for flashing with rpiboot |
+| nRPIBOOT | SW1 (slide switch) | Pulls the CM `nRPIBOOT` low and routes the CM USB port to the USB-C connector J1, for flashing with rpiboot |
+| CN6 / USB-C | SW4 (slide switch) | Connects hub port 2 to M.2 slot CN6 (ON) or to the USB-C host port J2 (OFF) |
 | RESET | SW2 | STM32 reset |
 | BOOT | SW3 | STM32 BOOT0, to start the USB DFU bootloader |
 | PWR | D2 (red) | CM power LED |
@@ -146,20 +149,25 @@ The board has no SD card slot, so it needs a Compute Module with eMMC (not a Lit
 ```text
 +BATT ─┬─ fuse ─ TVS ─ LMR14030 5 V buck (enabled by MCU) ─┐
        │                                                   ├─ TPS2117 ─ +5 V ─ CM and peripherals
-       │                                 USB-C 5 V ────────┘
+       │                            USB-C (J1) 5 V ────────┘
        │
-       └─ diode ─ ATA663231 (car I-Bus) ─ 3.3 V ─┐
-                                                 ├─ TPS2117 ─ 3.3 V ─ STM32, RGB switch
-                          CM 3.3 V output ───────┘
+       ├─ diode ─ ATA663231 (car I-Bus) ─ 3.3 V ─┐
+       │                                         ├─ TPS2117 ─ 3.3 V ─ STM32, RGB switch
+       │                  CM 3.3 V output ───────┘
+       │
+       └─ diode ─ 1 kΩ ─ navigation I-Bus (LIN master termination)
 
-+5 V ─ TLV75533 LDO ─ 3.3 V ─ USB hub, USB switch, video DAC (through a ferrite bead)
-+5 V ─ AP63203 buck ─ 3.3 V ─ M.2 slots, camera
++5 V ─ TPS54202 buck ─ 3.3 V ─ USB hub, USB switches, video DAC (through a ferrite bead)
++5 V ─ TPS54202 buck ─ 3.3 V ─ M.2 slots, camera
 +5 V ─ TPS2051B switch ─ PCM2912A audio codec
++5 V ─ TPS2051B switch (500 mA) ─ USB-C host port (J2)
 ```
+
+The two TPS54202 converters and the two TPS2051B switches are enabled by the CM 3.3 V output, so they only run while the Compute Module is on.
 
 The battery fuse holder (FH1) takes a Littelfuse 0451003.MRL (3 A) fuse, fitted by hand after assembly.
 
-The TPS2117 selects between the car supply and USB-C automatically, so the board can be powered on the bench from USB-C alone.
+The TPS2117 selects between the car supply and USB-C automatically, so the board can be powered on the bench from USB-C alone. A divider on its `PR1` pin makes it switch to the car supply only once the buck output is above about 4.3 V, not while the buck is still starting up. The MCU's TPS2117 does the same with the LIN regulator, above about 2.5 V.
 
 ### Video
 
@@ -169,10 +177,16 @@ The **TMUX1574** switch, controlled by the STM32, selects which picture reaches 
 
 ### USB
 
-The CM USB 2.0 port goes through a **TS3USB221** switch controlled by the nRPIBOOT switch:
+The CM USB 2.0 port goes through a **TS3USB221** switch controlled by the nRPIBOOT switch (SW1):
 
-- **nRPIBOOT off** (normal use): CM → **USB2514B** hub → STM32, PCM2912A codec, M.2 slot CN6, M.2 slot CN7
-- **nRPIBOOT on**: CM → USB-C connector, to flash the eMMC with rpiboot
+- **nRPIBOOT off** (normal use): CM → **USB2514B** hub:
+  - port 1: M.2 slot CN7
+  - port 2: M.2 slot CN6 or the USB-C host port (J2), through a second **TS3USB221** set by the CN6 / USB-C switch (SW4)
+  - port 3: PCM2912A audio codec
+  - port 4: STM32
+- **nRPIBOOT on**: CM → USB-C connector (J1), to flash the eMMC with rpiboot
+
+The USB-C host port (J2) supplies up to 500 mA through a **TPS2051B** current-limited switch and advertises default USB power (56 kΩ pull-ups on CC1/CC2). It is powered while the Compute Module is on and is meant for low-power devices, such as an analog video converter. When it is selected, M.2 slot CN6 has no USB, only PCIe.
 
 ---
 
@@ -202,7 +216,7 @@ Then reboot. The script writes `config.txt` for the board's display and I²C, se
 ## Repository Structure
 
 ```text
-hardware/      KiCad project (revision 0.2) and the revision 0.1 archive
+hardware/      KiCad project (revision 0.3)
 firmware/      STM32C071 MCU firmware
 scripts/       Raspberry Pi setup script
 3D/            STL files for printed parts (case and connector)
@@ -215,10 +229,11 @@ The KiCad project in [hardware/](hardware/) was made with KiCad 10 and includes 
 
 ## Project Status
 
-Revision 0.2 is the current revision of the CM4 board. Revision 0.1 is kept as an archive in [hardware/](hardware/).
+Revision 0.3 is the current design. It adds the USB-C host port and fixes the issues found on the revision 0.2 prototypes, which work in the car with the I-Bus bodge described in [hardware/README.md](hardware/README.md#known-issues-on-revision-02). See [Revision history](hardware/README.md#revision-history) for the changes. Earlier revisions are in the git history.
 
-- [x] Schematic and PCB layout
-- [ ] Prototype testing
+- [x] Schematic and PCB layout (revision 0.3)
+- [x] Revision 0.2 prototypes built and tested in the car
+- [ ] Revision 0.3 prototypes
 - [ ] STM32 firmware: first version in [firmware/](firmware/) (I-Bus bridge, Pi power, video source, CSYNC, USB bootloader), being tested on the prototype
 - [ ] Raspberry Pi setup script: first version in [scripts/](scripts/) (`config.txt`, `cmdline.txt`, splash screen, packages, I²C, Bluetooth)
 - [ ] 3D printed case and connector
@@ -227,7 +242,7 @@ Revision 0.2 is the current revision of the CM4 board. Revision 0.1 is kept as a
 
 ## Roadmap
 
-- Test the first prototypes in the car
+- Build and test the revision 0.3 prototypes
 - Test with a CM5
 - Expand compatibility testing across additional BMW platforms
 
