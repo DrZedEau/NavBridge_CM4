@@ -23,24 +23,38 @@ The NavBridge CM4 sits between the car's harness and the BMW navigation module:
 
 ### Wiring
 
-The CN3 pin numbers are moulded on the Micro-Fit housing: pins 1 to 6 are on one row, 7 to 12 on the other.
+Wire each signal on CN3 to the same signal on the X1313 plug. The grounds are all the same: the five GND wires can go to any of the GND pins.
 
-| CN3 pin (board) | Signal | X1313 pin (navigation module) |
-|---|---|---|
-| 1 | GND | 10 |
-| 2 | GND | 12 |
-| 3 | GND | 14 |
-| 4 | GND | 15 |
-| 5 | GND | 16 |
-| 6 | Nav audio − | 18 |
-| 7 | +BATT (terminal 30) | 1 |
-| 8 | I-Bus (navigation side) | 3 |
-| 9 | Red | 7 |
-| 10 | Green | 5 |
-| 11 | Blue | 6 |
-| 12 | Nav audio + | 9 |
+#### CN3 – Board end (Micro-Fit)
 
-X1313 pins 2, 4, 8, 11, 13 and 17 are not used.
+The pin numbers are moulded on the Micro-Fit housing: pins 1 to 6 are on one row, 7 to 12 on the other.
+
+| Pin | Signal | Pin | Signal |
+|---|---|---|---|
+| 1 | GND | 7 | +BATT |
+| 2 | GND | 8 | I-Bus (navigation side) |
+| 3 | GND | 9 | Red in |
+| 4 | GND | 10 | Green in |
+| 5 | GND | 11 | Blue in |
+| 6 | Nav audio − | 12 | Nav audio + |
+
+#### X1313 – Navigation module end (18-pin plug)
+
+BMW numbers the X1313 pins 1 to 9 on one row and 10 to 18 on the other.
+
+| Pin | Signal | Pin | Signal |
+|---|---|---|---|
+| 1 | +BATT | 10 | GND |
+| 2 | – | 11 | – |
+| 3 | I-Bus | 12 | GND |
+| 4 | – | 13 | – |
+| 5 | Green out | 14 | GND |
+| 6 | Blue out | 15 | GND |
+| 7 | Red out | 16 | GND |
+| 8 | – | 17 | – |
+| 9 | Nav audio + | 18 | Nav audio − |
+
+This is the same pinout as the car's plug on CN4, but the board's header numbers the pins in zigzag: X1313 pins 1 to 9 are CN4 pins 1, 3, 5 … 17, and X1313 pins 10 to 18 are CN4 pins 2, 4, 6 … 18 (see [CN4 – Car harness](../hardware/README.md#cn4--car-harness)).
 
 > [!WARNING]
 > A cable made for the [CM5 NavBridge](https://github.com/DrZedEau/CM5_NavBridge) has the navigation audio the other way round on the Micro-Fit (pin 6 +, pin 12 −). Swap those two terminals in the Micro-Fit housing before using it on this board. The car side (CN4) is the same on both boards.
