@@ -4,7 +4,7 @@ This writes Raspberry Pi OS to the Compute Module's eMMC over USB, and on a CM4 
 
 You need:
 
-- A CM4 or CM5 with eMMC and wireless (see [Compute Module Compatibility](../README.md#compute-module-compatibility)), fitted on CN1 and CN2 and held by the four M2.5 holes around them. A CM5 also needs a heatsink.
+- A CM4 or CM5 with eMMC and wireless (see [Compute Module](README.md#compute-module)), fitted on CN1 and CN2 and held by the four M2.5 holes around them. A CM5 also needs a heatsink.
 - A computer with a USB port and a USB-C data cable. The CM4 bootloader step below is written for Linux (a PC or another Raspberry Pi).
 - A 5 V / 3 A USB-C charger for the first boot
 
@@ -30,7 +30,7 @@ On Windows, run the installer from the [usbboot releases](https://github.com/ras
 
 ## 3. CM4 only: set the bootloader to turn the 3.3 V rail off at shutdown
 
-The CM4 keeps its 3.3 V rail up after `shutdown` unless its bootloader EEPROM says otherwise, and the MCU waits for that rail to go away before it turns the 5 V buck off (see the [warning](../README.md#compute-module-compatibility)). Compute Modules ship with the `rpi-eeprom-update` service disabled, so the EEPROM is written over USB with usbboot's `recovery` files.
+The CM4 keeps its 3.3 V rail up after `shutdown` unless its bootloader EEPROM says otherwise, and the MCU waits for that rail to go away before it turns the 5 V buck off: without this setting, the board keeps drawing from the car battery after shutdown. Compute Modules ship with the `rpi-eeprom-update` service disabled, so the EEPROM is written over USB with usbboot's `recovery` files.
 
 In the `usbboot` folder, edit `recovery/boot.conf`:
 

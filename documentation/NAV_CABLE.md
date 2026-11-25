@@ -85,7 +85,7 @@ Steps:
    </p>
 
 3. Plug the car's blue X1313 plug into CN4, through the 3D printed housing.
-4. Connect the line output (U1) to the car's AUX or CD changer input, and optionally a microphone to U2 (see [Audio connectors](../README.md#audio-connectors)).
+4. Connect the line output (U1) to the car's AUX or CD changer input, and optionally a microphone to U2 (see [Audio connectors](../hardware/README.md#audio-connectors)).
 5. Find a spot for the board, and reconnect the battery.
 
 The MCU starts from the car supply and turns the Raspberry Pi on when the ignition comes on.
