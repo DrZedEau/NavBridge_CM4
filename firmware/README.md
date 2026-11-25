@@ -28,7 +28,7 @@ Both buses run at 9600 baud, 8 data bits, even parity, 1 stop bit. A frame is: s
 
 Forwarding in each direction can be switched off in [src/config.h](src/config.h) (`IBUS_FORWARD_CAR_TO_NAV`, `IBUS_FORWARD_NAV_TO_CAR`).
 
-> **Revision 0.2: the navigation-side I-Bus needs a master pull-up.** The board splits the I-Bus: the car side keeps the car's own termination, but the navigation side (U10 to CN3 pin 8) only has U10's internal 30 kΩ slave pull-up. With the navigation module connected that is too weak: in the car every byte sent to it came back distorted (`ibus2` `col` and `err` rising, `tx` at 0, every frame dropped), while with CN3 unplugged the same frames went through. The fix is a LIN master termination on that line: 1 kΩ in series with a diode (e.g. 1N4148) from +BATT (CN3 pin 7, diode anode) to the navigation I-Bus (CN3 pin 8, resistor end), see [hardware/README.md](../hardware/README.md#known-issues).
+> **Revision 0.2: the navigation-side I-Bus needs a master pull-up.** The board splits the I-Bus: the car side keeps the car's own termination, but the navigation side (U10 to CN3 pin 8) only has U10's internal 30 kΩ slave pull-up. With the navigation module connected that is too weak: in the car every byte sent to it came back distorted (`ibus2` `col` and `err` rising, `tx` at 0, every frame dropped), while with CN3 unplugged the same frames went through. The fix is a LIN master termination on that line: 1 kΩ in series with a diode (e.g. 1N4148) from +BATT (CN3 pin 7, diode anode) to the navigation I-Bus (CN3 pin 8, resistor end), see [hardware/README.md](../hardware/README.md#known-issues-on-revision-02). Revision 0.3 has it on the board.
 
 ### Messages the board reacts to
 
@@ -113,7 +113,7 @@ Sleep follows the ATA663231 datasheet (section 1.2.3): EN falls together with TX
 
 On the bench this shows with 12 V on `+BATT` and the CM off (no USB-C): the STAT LED goes off 30 s after power-up, and pulling the car I-Bus (CN4 pin 5) to GND for a moment brings it back.
 
-> **The CM must turn its 3.3 V rail off when it shuts down.** On a CM4 that needs `POWER_OFF_ON_HALT=1` and `WAKE_ON_GPIO=0` in the bootloader EEPROM (`sudo rpi-eeprom-config --edit`); the CM4 defaults are `POWER_OFF_ON_HALT=0` and `WAKE_ON_GPIO=1`. Otherwise the rail stays up after `shutdown`, and the buck stays on until the battery is disconnected. The CM5 already defaults to `POWER_OFF_ON_HALT=1`, and `WAKE_ON_GPIO` does not apply to it.
+> **The CM must turn its 3.3 V rail off when it shuts down.** On a CM4 that needs `POWER_OFF_ON_HALT=1` and `WAKE_ON_GPIO=0` in the bootloader EEPROM, written over USB with usbboot's `recovery` files (see [Flash the Compute Module](../documentation/FLASH.md)); the CM4 defaults are `POWER_OFF_ON_HALT=0` and `WAKE_ON_GPIO=1`. Otherwise the rail stays up after `shutdown`, and the buck stays on until the battery is disconnected. The CM5 already defaults to `POWER_OFF_ON_HALT=1`, and `WAKE_ON_GPIO` does not apply to it.
 
 ### CSYNC
 

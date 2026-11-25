@@ -200,14 +200,14 @@ The board works with the **Raspberry Pi CM4** and **CM5** only. The Compute Modu
 - **Wireless** (Wi-Fi and Bluetooth)
 
 > [!WARNING]
-> **On a CM4, set the bootloader to turn the 3.3 V rail off at shutdown.** By default the CM4 keeps its 3.3 V rail up after `shutdown`. The MCU waits for that rail to go away before it turns the 5 V buck off, so the board would keep drawing from the car battery until it is disconnected. Run `sudo rpi-eeprom-config --edit` and set:
+> **On a CM4, set the bootloader to turn the 3.3 V rail off at shutdown.** By default the CM4 keeps its 3.3 V rail up after `shutdown`. The MCU waits for that rail to go away before it turns the 5 V buck off, so the board would keep drawing from the car battery until it is disconnected. Set these in the CM4's bootloader EEPROM:
 >
 > ```text
 > POWER_OFF_ON_HALT=1
 > WAKE_ON_GPIO=0
 > ```
 >
-> The CM5 already turns its 3.3 V rail off at shutdown.
+> Compute Modules ship with the `rpi-eeprom-update` service disabled, so this is done over USB while flashing, see [Flash the Compute Module](documentation/FLASH.md#3-cm4-only-set-the-bootloader-to-turn-the-33-v-rail-off-at-shutdown). The CM5 already turns its 3.3 V rail off at shutdown.
 
 ### CM4 or CM5
 
@@ -232,9 +232,21 @@ On a fresh Raspberry Pi OS install on the Compute Module (CM4 or CM5), run:
 curl -fsSL https://raw.githubusercontent.com/DrZedEau/NavBridge_CM4/main/scripts/setup.sh | sudo bash
 ```
 
-Then reboot. The script writes `config.txt` for the board's display and I²C, sets up a quiet boot with a splash screen, updates the system and installs the packages it needs, loads `i2c-dev` and unblocks Bluetooth. See [scripts/README.md](scripts/README.md#setup-script) for the details.
+Then reboot. The script writes `config.txt` for the board's display, USB hub and I²C, updates the system and installs the packages it needs, loads `i2c-dev` and unblocks Bluetooth. See [scripts/README.md](scripts/README.md#setup-script) for the details.
 
-On a CM4, also change the bootloader EEPROM setting described in [Compute Module Compatibility](#compute-module-compatibility): the setup script does not do it yet.
+The full procedure, from flashing the Compute Module (including the CM4 bootloader setting) to the MCU firmware and the app, is in the [documentation](#documentation).
+
+---
+
+## Documentation
+
+Step-by-step guides in [documentation/](documentation/README.md):
+
+1. [Make the navigation cable](documentation/NAV_CABLE.md)
+2. [Flash the Compute Module](documentation/FLASH.md), with the CM4 bootloader setting
+3. [Set up the Pi and flash the MCU](documentation/SETUP.md)
+4. [Install the NavBridge App](documentation/APP.md)
+5. [Install in the car](documentation/NAV_CABLE.md#install-in-the-car)
 
 ---
 
@@ -242,6 +254,7 @@ On a CM4, also change the bootloader EEPROM setting described in [Compute Module
 
 ```text
 hardware/      KiCad project (revision 0.3)
+documentation/ Build, setup and installation guides
 firmware/      STM32C071 MCU firmware
 scripts/       Raspberry Pi setup script
 3D/            STL files for printed parts (case and connector)
@@ -261,7 +274,7 @@ Revision 0.3 is the current design. It adds the USB-C host port and fixes the is
 - [x] Tested with a CM4 and a CM5
 - [ ] Revision 0.3 prototypes
 - [ ] STM32 firmware: first version in [firmware/](firmware/) (I-Bus bridge, Pi power, video source, CSYNC, USB bootloader), being tested on the prototype
-- [ ] Raspberry Pi setup script: first version in [scripts/](scripts/) (`config.txt`, `cmdline.txt`, splash screen, packages, I²C, Bluetooth)
+- [ ] Raspberry Pi setup script: first version in [scripts/](scripts/) (`config.txt`, packages, I²C, Bluetooth)
 - [ ] 3D printed case and connector
 
 ---

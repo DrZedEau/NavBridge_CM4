@@ -28,41 +28,26 @@ bash scripts/mcu-flash.sh
 curl -fsSL https://raw.githubusercontent.com/DrZedEau/NavBridge_CM4/main/scripts/setup.sh | sudo bash
 ```
 
-Or, from a clone of this repository: `sudo bash scripts/setup.sh`. Reboot afterwards, so that the new `config.txt`, `cmdline.txt` and splash screen apply.
+Or, from a clone of this repository: `sudo bash scripts/setup.sh`. Reboot afterwards, so that the new `config.txt` applies.
 
-The script only starts once it has been downloaded completely (`main` is called on its last line), and it can be run again: the steps that are already done are skipped or harmless.
+The script only starts once it has been downloaded completely (`main` is called on its last line), and it can be run again: the steps that are already done are skipped or harmless. See [Set up the Pi and flash the MCU](../documentation/SETUP.md) for where it fits in the install.
 
 ### What it does
 
 - Boot time: disables `NetworkManager-wait-online` and removes unused packages (`cloud-init`)
-- Updates the system and installs the required packages, including `dfu-util` to update the STM32 firmware
+- Updates the system and installs `git`, `vim`, `dfu-util` (to update the STM32 firmware) and `rfkill`
 - Writes `config.txt` (the previous one is kept as a backup): 24-bit DPI video output for the ADV7125 video DAC with the timings of the BMW display (400 × 240), USB host mode for the on-board hub, and I²C for the MFi authentication coprocessor (SDA0/SCL0, shared with the camera)
-- Writes `cmdline.txt` (the previous one is kept as a backup) for a quiet boot: the console moves to `tty3`, and the kernel messages, the cursor and the systemd status lines no longer show on the display, with the splash screen instead of the Raspberry Pi logos. Its `root=` is the running system's root partition (the PARTUUID that `findmnt` reports, as in `/etc/fstab`), which differs on each install. Any other parameter the previous file had, such as the Wi-Fi country (`cfg80211.ieee80211_regdom`), is dropped
-- Installs the [splash screen](#splash-screen)
 - Loads the `i2c-dev` kernel module now and at every boot, so that the MFi coprocessor's bus shows up as `/dev/i2c-10`
 - Makes sure Bluetooth is not blocked by `rfkill`
 
-### Splash screen
+The script leaves `cmdline.txt` as it is. The boot splash screen comes with the NavBridge App (its `install_splash.sh`, see [Install the NavBridge App](../documentation/APP.md)).
 
-[splash/splash.png](splash/splash.png) shows on the display from the start of the kernel until the app draws over it. It goes through Raspberry Pi's [rpi-splash-screen-support](https://github.com/raspberrypi/rpi-splash-screen-support): `configure-splash` puts it in the initramfs as `/lib/firmware/logo.tga`. It runs with `--no-cmdline`, because it would remove `quiet`: the `cmdline.txt` step adds the splash parameters itself.
-
-The kernel reads [splash/splash.tga](splash/splash.tga): an uncompressed 24-bit TGA, 400 × 240 (the display, so it fills it without cropping) and at most 224 colours. To change the picture, replace `splash.png`, then:
-
-```bash
-python3 scripts/splash/make-splash.py scripts/splash/splash.png scripts/splash/splash.tga
-```
-
-[make-splash.py](splash/make-splash.py) only needs Python. It stretches the picture to 400 × 240 (a 16:9 picture then fills the 16:9 screen with its proportions) and reduces it to 224 colours, keeping black pure black. Run through `curl`, the setup script downloads `splash.tga` from the `main` branch; from a clone, it uses the one next to it.
-
-- `logo.nologo` hides the splash screen too: `cmdline.txt` must not have it.
-- On a quiet boot (`quiet`, `loglevel=0`), the splash screen needs the 6.18 kernel or later: the 6.12 kernel hides it. Check with `uname -r`.
+The bootloader EEPROM setting a CM4 needs (`POWER_OFF_ON_HALT=1`, `WAKE_ON_GPIO=0`) is not set by the script: Compute Modules ship with `rpi-eeprom-update` disabled, so it is written over USB while flashing, see [Flash the Compute Module](../documentation/FLASH.md#3-cm4-only-set-the-bootloader-to-turn-the-33-v-rail-off-at-shutdown). The NavBridge App's default configuration already uses the MCU's I-Bus port (`/dev/serial/by-id/usb-NavBridge_NavBridge_CM4_MCU-if00`).
 
 ### Still to add
 
 - The PCM2912A USB audio codec (output volume at boot)
 - The CSI camera on CAM1
-- The bootloader EEPROM: `POWER_OFF_ON_HALT=1` and `WAKE_ON_GPIO=0`, so that the CM 3.3 V rail goes off at shutdown and the MCU can turn the 5 V buck off
-- The NavBridge App's I-Bus port: `/dev/serial/by-id/usb-NavBridge_NavBridge_CM4_MCU-if00`
 
 The previous board's script is `software/scripts/setup.sh` in the [CM5 NavBridge](https://github.com/DrZedEau/CM5_NavBridge) repository. Unlike that board, the NavBridge CM4 generates the composite sync with the STM32, so the `dpi_csync` PIO service (CM5 only) is not needed.
 
