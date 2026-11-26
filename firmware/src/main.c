@@ -14,9 +14,12 @@
  * - CD changer emulator while the ignition is on, unless the car has a real CD changer, so
  *   that the radio's CD mode plays the Pi's audio.
  * - Over USB, the Pi can hand over to the bootloader to update this firmware.
+ * - For the app: the car's clock from the Pi's time ("TIME ..."), and the PDC asked for its
+ *   distances in reverse ("PDC ON").
  */
 #include "board.h"
 #include "buttons.h"
+#include "carclock.h"
 #include "cdchanger.h"
 #include "config.h"
 #include "csync.h"
@@ -24,6 +27,7 @@
 #include "host.h"
 #include "ibus.h"
 #include "ibus_msg.h"
+#include "pdc.h"
 #include "power.h"
 #include "usb_cdc.h"
 
@@ -53,8 +57,10 @@ static void on_ibus_frame(uint32_t bus, const uint8_t *frame, uint32_t len)
     if (ignition >= 0) {
         power_ignition((uint8_t)ignition);
         cdchanger_ignition((uint8_t)ignition, board_millis());
+        pdc_ignition((uint8_t)ignition);
     }
     cdchanger_frame(frame, len, board_millis());
+    pdc_frame(frame, len);
 
     /* The app acts on the buttons only while the Pi's picture is shown ("RGB RPI"). The
      * buttons that switch the picture are meant for the board, not the app, so their frame
@@ -78,6 +84,12 @@ static int cdchanger_send(const uint8_t *frame, uint32_t len)
     return queued;
 }
 
+/* The clock's and the PDC's frames: for the IKE and the PDC, on the car side only. */
+static int car_send(const uint8_t *frame, uint32_t len)
+{
+    return ibus_send(IBUS_CAR, frame, len);
+}
+
 int main(void)
 {
     /* Started by the bootloader (src/layout.h), which already checked the BOOT button. */
@@ -88,6 +100,8 @@ int main(void)
     csync_init();
     ibus_init(on_ibus_frame);
     cdchanger_init(cdchanger_send);
+    pdc_init(car_send);
+    carclock_init(car_send);
     power_init();
 
     for (;;) {
@@ -95,7 +109,8 @@ int main(void)
         csync_poll();
         ibus_poll();
         cdchanger_poll(board_millis());
-        host_poll();
+        pdc_poll(board_millis());
+        host_poll();    /* commands from the Pi, and the car's clock when its minute comes */
         usb_cdc_poll();
         __WFI();        /* any interrupt, at least the 1 kHz tick, runs the loop again */
     }

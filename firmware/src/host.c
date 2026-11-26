@@ -5,6 +5,7 @@
 #include "host.h"
 #include "board.h"
 #include "buttons.h"
+#include "carclock.h"
 #include "cdchanger.h"
 #include "config.h"
 #include "csync.h"
@@ -12,6 +13,7 @@
 #include "hardware.h"
 #include "ibus.h"
 #include "layout.h"
+#include "pdc.h"
 #include "power.h"
 #include "usb_cdc.h"
 
@@ -24,6 +26,7 @@ static char line[LINE_MAX];
 static uint32_t line_len;
 static uint8_t line_too_long;
 static uint8_t rgb_reported = RGB_UNKNOWN;  /* video source the Pi was last told */
+static uint8_t port_open;                   /* the Pi has the port open (DTR) */
 
 static char *put_str(char *p, const char *s)
 {
@@ -43,6 +46,20 @@ static char *put_u32(char *p, uint32_t value)
     } while (value != 0u);
     while (n != 0u) {
         *p++ = tmp[--n];
+    }
+    return p;
+}
+
+/* "2026-11-26 19:46" */
+static char *put_minute(char *p, const carclock_minute_t *m)
+{
+    const uint32_t fields[] = { m->month, m->day, m->hour, m->minute };
+    static const char before[] = "-- :";
+    p = put_u32(p, m->year);
+    for (uint32_t i = 0; i < 4u; i++) {
+        *p++ = before[i];
+        *p++ = (char)('0' + fields[i] / 10u);
+        *p++ = (char)('0' + fields[i] % 10u);
     }
     return p;
 }
@@ -134,7 +151,7 @@ void host_report_rgb(void)
 
 static void send_status(void)
 {
-    char out[640];
+    char out[768];  /* about 700 bytes with every counter at 10 digits */
     csync_status_t cs;
     csync_get_status(&cs);
 
@@ -149,6 +166,11 @@ static void send_status(void)
     static const char *const changer[] = { "off", "wait", "on", "real" };
     p = put_str(p, " changer=");
     p = put_str(p, changer[cdchanger_state()]);
+    static const char *const pdc[] = { "off", "on", "asking" };
+    p = put_str(p, " pdc=");
+    p = put_str(p, pdc[pdc_state()]);
+    p = put_str(p, " clock=");
+    p = put_str(p, carclock_waiting() ? "waiting" : "idle");
     p = put_str(p, " lin=");
     p = put_str(p, ibus_lin_on() ? "on" : "off");
     p = put_str(p, " idle=");
@@ -350,6 +372,23 @@ static void ibus_send_command(const char *arg)
     reply(out, put_str(out, ibus_lin_on() ? "IBUS SEND queued" : "IBUS SEND queued (lin=off)"));
 }
 
+/* TIME YYYY-MM-DD HH:MM:SS: the Pi's local time, for the car's clock at the next minute. */
+static void time_command(const char *arg)
+{
+    char out[64];
+    carclock_minute_t m;
+    uint32_t wait_ms;
+
+    if (!carclock_set(arg, board_millis(), &m, &wait_ms)) {
+        reply(out, put_str(out, "ERROR TIME YYYY-MM-DD HH:MM:SS"));
+        return;
+    }
+    char *p = put_minute(put_str(out, "TIME "), &m);
+    p = put_str(p, " in ");
+    p = put_u32(p, wait_ms / 1000u);
+    reply(out, put_str(p, " s"));
+}
+
 static void command(const char *cmd)
 {
     char out[64];
@@ -372,6 +411,12 @@ static void command(const char *cmd)
         hw_set_rgb(same(cmd, "RGB RPI") ? RGB_RPI : RGB_NAV);
         rgb_reported = RGB_UNKNOWN;  /* the reply, even when the picture did not change */
         host_report_rgb();
+    } else if (same(cmd, "PDC ON") || same(cmd, "PDC OFF")) {
+        const int on = same(cmd, "PDC ON");
+        pdc_enable(on);
+        reply(out, put_str(out, on ? "PDC ON" : "PDC OFF"));
+    } else if ((arg = after(cmd, "TIME ")) != 0) {
+        time_command(arg);
     } else if ((arg = after(cmd, "CSYNC FILTER ")) != 0) {
         csync_filter_command(arg);
     } else if ((arg = after(cmd, "IBUS SEND ")) != 0) {
@@ -385,6 +430,21 @@ void host_poll(void)
 {
     uint8_t buf[32];
     uint32_t n;
+
+    /* Closing the port ends PDC ON: the app says it again each time it opens the port. */
+    const uint8_t open = (uint8_t)usb_cdc_ready();
+    if (port_open && !open) {
+        pdc_enable(0);
+    }
+    port_open = open;
+
+    carclock_minute_t m;
+    const int clock = carclock_poll(board_millis(), &m);
+    if (clock != 0) {
+        char out[48];
+        reply(out, clock > 0 ? put_minute(put_str(out, "TIME SENT "), &m)
+                             : put_str(out, "ERROR TIME queue full"));
+    }
 
     while ((n = usb_cdc_read(buf, sizeof buf)) != 0u) {
         for (uint32_t i = 0; i < n; i++) {

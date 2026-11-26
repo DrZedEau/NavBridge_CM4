@@ -22,6 +22,12 @@
  *   RGB      reply "RGB RPI" or "RGB NAV"
  *   RGB RPI  show the Pi's picture, reply "RGB RPI"
  *   RGB NAV  show the navigation picture, reply "RGB NAV"
+ *   TIME YYYY-MM-DD HH:MM:SS
+ *            the Pi's local time, for the car's clock at the next minute (carclock.h):
+ *            reply "TIME 2026-11-26 19:46 in 30 s", then "TIME SENT 2026-11-26 19:46"
+ *   PDC ON / PDC OFF
+ *            ask the PDC for its distances while in reverse, or stop (pdc.h); reply
+ *            "PDC ON" or "PDC OFF". Closing the port turns it off.
  * The picture starts on the navigation module at every CM start.
  */
 #ifndef HOST_H

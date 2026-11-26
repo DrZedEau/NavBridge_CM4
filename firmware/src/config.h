@@ -73,6 +73,11 @@
 #define CDCHANGER_LISTEN_MS   10000u   /* ignition on this long without a radio poll: start */
 
 /* ---------------------------------------------------------------------------------------
+ * PDC (src/pdc.h): after "PDC ON", the PDC is asked for its distances while in reverse.
+ */
+#define PDC_INTERVAL_MS       250u     /* four times a second, as BlueBus asks it */
+
+/* ---------------------------------------------------------------------------------------
  * USB (CDC ACM, to the Raspberry Pi through the USB2514B hub)
  *
  * On the Pi: /dev/serial/by-id/usb-NavBridge_NavBridge_CM4_MCU-if00

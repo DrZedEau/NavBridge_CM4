@@ -11,6 +11,7 @@ Firmware for the **STM32C071KBT6** (U9) on the NavBridge CM4 board. Bare-metal C
 - **CSYNC.** Composite sync for the ADV7125, generated from the DPI `HSYNC` and `VSYNC` by TIM1 (progressive scan).
 - **USB update.** A small bootloader of its own lets the Pi update the firmware over USB, see [Bootloader and updates](#bootloader-and-updates).
 - **CD changer emulator.** While the ignition is on, the MCU answers the radio as a CD changer, so that the radio's CD mode plays the Pi's audio. Not when the car has a real CD changer, see [CD changer emulator](#cd-changer-emulator).
+- **Car clock and PDC, for the app.** `TIME ...` sets the car's clock to the Pi's time at the next minute, and after `PDC ON` the MCU asks the park distance control for its distances while the car is in reverse, see [Car clock and PDC](#car-clock-and-pdc).
 - **STAT LED** (D6) on whenever the MCU is powered.
 
 Not implemented yet: the keyboard (HID) button bindings and a watchdog. The previous board's ATmega32U4 firmware, which has the HID bindings, is in the [CM5 NavBridge](https://github.com/DrZedEau/CM5_NavBridge) repository.
@@ -88,6 +89,27 @@ The Pi's line output (U1) goes to the radio's CD changer input, and the radio on
 - If the MCU restarts while the ignition is already on, the emulator waits for the next ignition message.
 
 `changer` in `STATUS` shows its state: `off` (ignition off), `wait` (ignition on, waiting for a real changer to show up), `on` (answering the radio), `real` (a real changer was heard).
+
+### Car clock and PDC
+
+Two jobs the app leaves to the MCU, which builds the frames and sends them on the car's I-Bus, as BlueBus does. Neither touches the hardware ([src/carclock.c](src/carclock.c), [src/pdc.c](src/pdc.c)), so both are testable on a PC.
+
+**Car clock.** At Settings' Set car clock, the app sends the Pi's local date and time, `TIME 2026-11-26 19:45:30`. The instrument cluster (IKE) takes hours and minutes and starts a new minute when it is set, so the MCU waits for the next minute. At 19:46:00 it sends, from the navigation computer's address (`3B`), the date then the time, in binary:
+
+| Frame | Data |
+|---|---|
+| `3B 07 80 40 02 DD MM YY` | Date: day, month, year − 2000 |
+| `3B 06 80 40 01 HH MM` | Time, 24-hour |
+
+- It replies at once `TIME 2026-11-26 19:46 in 30 s`, then `TIME SENT 2026-11-26 19:46` when the frames are queued. A time with `:00` seconds is sent at once.
+- A new `TIME` replaces one still waiting. Years 2000 to 2099. Anything else than `YYYY-MM-DD HH:MM:SS` gets `ERROR TIME YYYY-MM-DD HH:MM:SS` and changes nothing.
+
+**PDC.** The park distance control (`60`) gives its sensors' distances only when asked. `PDC ON` tells the MCU to ask it while the car is in reverse: `3F 03 60 1B`, from the diagnosis address, at once and then every 250 ms (`PDC_INTERVAL_MS` in [src/config.h](src/config.h)). The PDC's answer (`60 .. 3F A0 ...`) reaches the Pi like any other frame.
+
+- Reverse is the cluster's sensor status, `80 .. 13 xx yy`: the high half of `yy` is 1 in reverse, with a manual or an automatic gearbox.
+- The asking stops at the end of reverse, and when the ignition leaves KL-15.
+- `PDC OFF` turns it off, and so does closing the port. The MCU starts with it off, and the app sends `PDC ON` again each time it opens the port.
+- The reply is `PDC ON` or `PDC OFF`. `pdc` in `STATUS` shows the state: `off`, `on` (not in reverse) or `asking`.
 
 ### Power
 
@@ -173,6 +195,8 @@ It accepts one command per line:
 | `RGB` | `RGB RPI` or `RGB NAV`: the picture the display shows |
 | `RGB RPI` | Show the Pi's picture; reply `RGB RPI` |
 | `RGB NAV` | Show the navigation picture; reply `RGB NAV` |
+| `TIME YYYY-MM-DD HH:MM:SS` | Set the car's clock at the next minute; reply `TIME <date> <HH:MM> in <s> s`, then `TIME SENT <date> <HH:MM>`, see [Car clock and PDC](#car-clock-and-pdc) |
+| `PDC ON`, `PDC OFF` | Ask the PDC for its distances in reverse, or stop; reply `PDC ON` or `PDC OFF`. Closing the port turns it off |
 | `DFU` | `DFU OK`, then hand over to the bootloader for an update (`0483:5741`), see [Bootloader and updates](#bootloader-and-updates) |
 | `DIAG` | `DIAG resetflags=... csr2=... bkp0=... bkp1=... bkptest=ok optr=...`: reset flags, backup registers and option bytes |
 | `CSYNC FILTER n` | Set the HSYNC input filter (0..15) until the next restart, see [CSYNC](#csync) |
@@ -185,6 +209,7 @@ It accepts one command per line:
 | `cm`, `buck`, `rgb`, `lin` | CM 3.3 V present, buck enable, video source, LIN transceivers enabled (only with 12 V) |
 | `btnkept` | App button frames from the car kept from the navigation module while the Pi's picture was shown, see [Buttons](#buttons) |
 | `changer` | CD changer emulator: `off`, `wait`, `on` or `real`, see [CD changer emulator](#cd-changer-emulator) |
+| `pdc`, `clock` | PDC asking: `off`, `on` or `asking`; car clock: `waiting` for its minute, or `idle`, see [Car clock and PDC](#car-clock-and-pdc) |
 | `idle`, `sleepfail` | Seconds since the last I-Bus byte heard or sent; times the transceivers were put to sleep but the MCU stayed powered |
 | `csync`, `line`, `sync`, `broad` | CSYNC state, measured line period and pulse widths |
 | `vsync`, `filter` | VSYNC seen, HSYNC input filter setting |
@@ -345,6 +370,8 @@ The bootloader then waits in update mode, and `mcu-flash.sh` on the Pi writes th
 | [src/ibus.c](src/ibus.c), [src/ibus_msg.h](src/ibus_msg.h) | Firmware: I-Bus receive, transmit and bridge; the messages the board reacts to |
 | [src/buttons.c](src/buttons.c) | Firmware: the picture the buttons select, and which button frames reach the navigation module (no hardware access, testable on a PC) |
 | [src/cdchanger.c](src/cdchanger.c) | Firmware: CD changer emulator (no hardware access, testable on a PC) |
+| [src/carclock.c](src/carclock.c) | Firmware: the car's clock from `TIME` (no hardware access, testable on a PC) |
+| [src/pdc.c](src/pdc.c) | Firmware: asks the PDC for its distances in reverse after `PDC ON` (no hardware access, testable on a PC) |
 | [src/usb_cdc.c](src/usb_cdc.c) | Firmware: USB CDC ACM device |
 | [src/host.c](src/host.c) | Firmware: lines to and from the Pi |
 | [bootloader/main.c](bootloader/main.c) | Bootloader: start the firmware or stay for an update |
